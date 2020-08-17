@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "993941675853",
+    "firebase_url": "https://westblock-blues.firebaseio.com",
+    "project_id": "westblock-blues",
+    "storage_bucket": "westblock-blues.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993941675853:android:ea5956ad5fd7463692a104",
+        "android_client_info": {
+          "package_name": "com.web.westblockapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993941675853-59loimh90kjtigbinrjs82ti4l0d3lud.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkuVfVwCCZ0gh1tBkjURWsJUpCRshPP1w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993941675853-59loimh90kjtigbinrjs82ti4l0d3lud.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -33,6 +33,10 @@ dependencies:
   cached_network_image: ^2.2.0+1
   google_fonts: ^1.1.0
   flutter_vector_icons: ^0.2.1
+  cloud_firestore: ^0.13.7
+  firebase_auth: ^0.16.1
+  flutter_auth_buttons:
+  google_sign_in:
 
 dev_dependencies:
   flutter_test:

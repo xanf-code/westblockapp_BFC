@@ -1,4 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:westblockapp/Widgets/UserImageWidget.dart';
+
+import 'Profile.dart';
 
 class Shoppage extends StatefulWidget {
   final String title;
@@ -15,6 +20,19 @@ class _ShoppageState extends State<Shoppage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Color(0xFF011589),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) => ProfilePage(),
+                ),
+              );
+            },
+            child: UserPhoto(),
+          )
+        ],
         title: Text(widget.title),
         centerTitle: false,
       ),
