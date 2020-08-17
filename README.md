@@ -1,3 +1,5 @@
+[![Codemagic build status](https://api.codemagic.io/apps/5f3a2dfb177fb12511a38d0a/5f3a2dfb177fb12511a38d09/status_badge.svg)](https://codemagic.io/apps/5f3a2dfb177fb12511a38d0a/5f3a2dfb177fb12511a38d09/latest_build)
+
 # westblockapp
 
 Bengaluru FC Fans App.
