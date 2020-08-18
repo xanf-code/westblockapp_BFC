@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:westblockapp/Widgets/UserImageWidget.dart';
+import 'package:westblockapp/Home/homepage.dart';
 
 import 'Profile.dart';
 
@@ -26,11 +26,15 @@ class _ShoppageState extends State<Shoppage> {
               Navigator.push(
                 context,
                 CupertinoPageRoute(
-                  builder: (context) => ProfilePage(),
+                  builder: (context) =>
+                      ProfilePage(userProfileId: currentUser.id),
                 ),
               );
             },
-            child: UserPhoto(),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: Icon(Icons.account_circle),
+            ),
           )
         ],
         title: Text(widget.title),

@@ -2,9 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/Profile.dart';
-import 'package:westblockapp/Widgets/UserImageWidget.dart';
-import 'package:westblockapp/Widgets/provider.dart';
 
 class Followpage extends StatefulWidget {
   final String title;
@@ -27,11 +26,15 @@ class _FollowpageState extends State<Followpage> {
               Navigator.push(
                 context,
                 CupertinoPageRoute(
-                  builder: (context) => ProfilePage(),
+                  builder: (context) =>
+                      ProfilePage(userProfileId: currentUser.id),
                 ),
               );
             },
-            child: UserPhoto(),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: Icon(Icons.account_circle),
+            ),
           )
         ],
         title: Text(this.widget.title),

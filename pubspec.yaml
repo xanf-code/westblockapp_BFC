@@ -37,6 +37,9 @@ dependencies:
   firebase_auth: ^0.16.1
   flutter_auth_buttons:
   google_sign_in:
+  uuid: ^2.2.0
+  timeago: ^2.0.26
+
 
 dev_dependencies:
   flutter_test:
