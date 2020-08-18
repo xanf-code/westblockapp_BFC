@@ -85,19 +85,16 @@ class _PostState extends State<Post> {
     isLiked = (likes[currentUserOnlineId] == true);
     return Padding(
       padding: const EdgeInsets.all(15.0),
-      child: Card(
-        elevation: 0,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            createPostHead(),
-            Divider(),
-            createPostDesc(),
-            Divider(),
-            createPostFooter(),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          createPostHead(),
+          Divider(),
+          createPostDesc(),
+          Divider(),
+          createPostFooter(),
+        ],
       ),
     );
   }
@@ -107,22 +104,128 @@ class _PostState extends State<Post> {
       future: usersReference.document(ownerId).get(),
       builder: (context, dataSnapshot) {
         if (!dataSnapshot.hasData) {
-          return CircularProgressIndicator();
+          return LinearProgressIndicator();
         }
         User user = User.fromDocument(dataSnapshot.data);
+        bool isPostOwner = currentUserOnlineId == ownerId;
         return ListTile(
           leading: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(user.url),
             backgroundColor: Colors.grey,
           ),
-          title: Text(
-            user.profileName,
-            style:
-                GoogleFonts.ubuntu(fontWeight: FontWeight.bold, fontSize: 15),
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user.profileName,
+                style: GoogleFonts.ubuntu(
+                    fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Container(
+                height: 25,
+                width: 100,
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    type.toUpperCase(),
+                    style: GoogleFonts.montserrat(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12),
+                  ),
+                ),
+              ),
+            ],
           ),
+          trailing: isPostOwner
+              ? IconButton(
+                  icon: Icon(
+                    Icons.more_horiz,
+                    size: 20,
+                  ),
+                  onPressed: () => controllPostDelete(context),
+                )
+              : Text(""),
         );
       },
     );
+  }
+
+  controllPostDelete(BuildContext mContex) {
+    return showDialog(
+        context: mContex,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text("What do you want to do?"),
+            children: [
+              SimpleDialogOption(
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_outline),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "Delete the Post",
+                      style: GoogleFonts.montserrat(fontSize: 15),
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  removeUserPost();
+                },
+              ),
+              SimpleDialogOption(
+                child: Row(
+                  children: [
+                    Icon(Icons.cancel),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "Cancel",
+                      style: GoogleFonts.montserrat(fontSize: 15),
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  removeUserPost() async {
+    postReference
+        .document(ownerId)
+        .collection("usersPosts")
+        .document(postId)
+        .get()
+        .then((document) {
+      if (document.exists) {
+        document.reference.delete();
+      }
+    });
+    QuerySnapshot commentsQuerySnapshot = await commentsReference
+        .document(postId)
+        .collection("comments")
+        .getDocuments();
+
+    commentsQuerySnapshot.documents.forEach((document) {
+      if (document.exists) {
+        document.reference.delete();
+      }
+    });
   }
 
   removeLike() {
@@ -195,13 +298,20 @@ class _PostState extends State<Post> {
 
   createPostDesc() {
     return Padding(
-      padding: const EdgeInsets.only(left: 25.0, top: 10),
+      padding:
+          const EdgeInsets.only(left: 25.0, top: 10, right: 25, bottom: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(type),
-          Text(description),
+          SelectableText(
+            description,
+            style: GoogleFonts.montserrat(
+              color: Colors.black,
+              fontWeight: FontWeight.w400,
+              fontSize: 16,
+            ),
+          ),
         ],
       ),
     );
@@ -244,9 +354,23 @@ class _PostState extends State<Post> {
                   description: description,
                   type: type,
                 ),
-                child: Icon(
-                  Octicons.comment_discussion,
-                  color: Colors.black,
+                child: Row(
+                  children: [
+                    Icon(
+                      Octicons.comment_discussion,
+                      color: Colors.black,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Comments",
+                        style: GoogleFonts.montserrat(fontSize: 14),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

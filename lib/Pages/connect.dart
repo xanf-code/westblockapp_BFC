@@ -1,15 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/Profile.dart';
+import 'package:westblockapp/Widgets/postWidget.dart';
 import 'package:westblockapp/models/Users.dart';
 
 class Connectpage extends StatefulWidget {
   final String title;
   final User gCurrentUser;
+
   const Connectpage({Key key, this.title, this.gCurrentUser});
   @override
   _ConnectpageState createState() => _ConnectpageState();
@@ -20,6 +23,39 @@ class _ConnectpageState extends State<Connectpage> {
   String postId = Uuid().v4();
   TextEditingController postTextEditingController = TextEditingController();
   TextEditingController typeEditingController = TextEditingController();
+  List<Post> posts;
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  getAllPosts() async {
+    QuerySnapshot querySnapshot =
+        await postReference.orderBy("timestamp").getDocuments();
+
+    List<Post> allPosts = querySnapshot.documents
+        .map((document) => Post.fromDocument(document))
+        .toList();
+
+    setState(() {
+      this.posts = allPosts;
+    });
+  }
+
+  createFeed() {
+    if (posts == null) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      return ListView(
+        children: posts,
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getAllPosts();
+  }
 
   controllUploadAndSave() async {
     setState(() {
@@ -109,6 +145,9 @@ class _ConnectpageState extends State<Connectpage> {
     );
   }
 
+  bool loading = false;
+  List<Post> postList = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,9 +184,8 @@ class _ConnectpageState extends State<Connectpage> {
           ),
         ),
       ),
-      body: Center(
-        child: Text('Connect Page'),
-      ),
+      key: scaffoldKey,
+      body: createFeed(),
     );
   }
 }

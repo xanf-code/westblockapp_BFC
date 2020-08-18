@@ -26,8 +26,9 @@ class _FollowpageState extends State<Followpage> {
               Navigator.push(
                 context,
                 CupertinoPageRoute(
-                  builder: (context) =>
-                      ProfilePage(userProfileId: currentUser.id),
+                  builder: (context) => ProfilePage(
+                    userProfileId: currentUser.id,
+                  ),
                 ),
               );
             },

@@ -45,7 +45,9 @@ class CommentsPageState extends State<CommentsPage> {
           .snapshots(),
       builder: (context, dataSnapshot) {
         if (!dataSnapshot.hasData) {
-          return CircularProgressIndicator();
+          return Center(
+            child: CircularProgressIndicator(),
+          );
         }
         List<Comment> comments = [];
         dataSnapshot.data.documents.forEach((document) {
@@ -152,9 +154,22 @@ class Comment extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-              title: Text(
-                userName + ":" + comment,
-                style: GoogleFonts.ubuntu(fontSize: 18),
+              title: RichText(
+                text: TextSpan(children: [
+                  TextSpan(
+                    text: "$userName",
+                    style: GoogleFonts.montserrat(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: ":    ",
+                    style: GoogleFonts.montserrat(color: Colors.black),
+                  ),
+                  TextSpan(
+                    text: "$comment",
+                    style: GoogleFonts.montserrat(color: Colors.black),
+                  ),
+                ]),
               ),
               leading: CircleAvatar(
                 backgroundImage: CachedNetworkImageProvider(url),

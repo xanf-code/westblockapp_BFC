@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:westblockapp/Home/homepage.dart';
-import 'package:westblockapp/Services/auth_service.dart';
 import 'package:westblockapp/Widgets/postWidget.dart';
 import 'package:westblockapp/models/Users.dart';
 
