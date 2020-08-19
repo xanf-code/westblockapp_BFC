@@ -100,20 +100,22 @@ class _MyHomePageState extends State<MyHomePage> {
   Scaffold HomePage() {
     return Scaffold(
       body: <Widget>[
-        Center(
-          child: RaisedButton.icon(
-            onPressed: logOutUser,
-            icon: Icon(Icons.close),
-            label: Text("Sign Out"),
-          ),
+        Followpage(
+          title: 'Follow',
+          gCurrentUser: currentUser,
         ),
-//        Followpage(title: 'Follow'),
-        Watchpage(title: 'Watch'),
+        Watchpage(
+          title: 'Watch',
+          gCurrentUser: currentUser,
+        ),
         Connectpage(
           title: 'Connect',
           gCurrentUser: currentUser,
         ),
-        Shoppage(title: 'Shop'),
+        Shoppage(
+          title: 'Shop',
+          gCurrentUser: currentUser,
+        ),
       ][currentIndex],
       bottomNavigationBar: BubbleBottomBar(
         backgroundColor: Color(0xFF011589),

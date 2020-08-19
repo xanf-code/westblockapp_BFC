@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CreateAccountPage extends StatefulWidget {
@@ -59,6 +60,11 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       key: _formKey,
                       autovalidate: true,
                       child: TextFormField(
+                        inputFormatters: [
+                          WhitelistingTextInputFormatter(
+                            RegExp("[a-zA-Z]"),
+                          ),
+                        ],
                         style: GoogleFonts.montserrat(color: Colors.black),
                         validator: (val) {
                           if (val.trim().length < 5 || val.isEmpty) {

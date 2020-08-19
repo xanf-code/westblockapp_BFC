@@ -6,12 +6,14 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/comments.dart';
+import 'package:westblockapp/Widgets/postWidget.dart';
 import 'package:westblockapp/models/Users.dart';
+import 'package:timeago/timeago.dart' as tAgo;
 
 class AllPosts extends StatefulWidget {
   final String postId;
   final String ownerId;
-  //final String timestamp;
+  final DateTime timestamp;
   final dynamic likes;
   final String description;
   final String type;
@@ -19,7 +21,7 @@ class AllPosts extends StatefulWidget {
   AllPosts(
       {this.postId,
       this.ownerId,
-      //this.timestamp,
+      this.timestamp,
       this.likes,
       this.description,
       this.type});
@@ -31,6 +33,7 @@ class AllPosts extends StatefulWidget {
       likes: documentSnapshot["likes"],
       description: documentSnapshot["description"],
       type: documentSnapshot["type"],
+      timestamp: documentSnapshot["timestamp"].toDate(),
     );
   }
 
@@ -52,7 +55,7 @@ class AllPosts extends StatefulWidget {
   _AllPostsState createState() => _AllPostsState(
         postId: this.postId,
         ownerId: this.ownerId,
-        //timestamp: this.timestamp,
+        timestamp: this.timestamp,
         likes: this.likes,
         description: this.description,
         type: this.type,
@@ -63,7 +66,7 @@ class AllPosts extends StatefulWidget {
 class _AllPostsState extends State<AllPosts> {
   final String postId;
   final String ownerId;
-  //final String timestamp;
+  final DateTime timestamp;
   Map likes;
   final String description;
   final String type;
@@ -75,11 +78,11 @@ class _AllPostsState extends State<AllPosts> {
   _AllPostsState(
       {this.postId,
       this.ownerId,
-      //this.timestamp,
       this.likes,
       this.description,
       this.type,
-      this.likeCount});
+      this.likeCount,
+      this.timestamp});
   @override
   Widget build(BuildContext context) {
     isLiked = (likes[currentUserOnlineId] == true);
@@ -90,10 +93,10 @@ class _AllPostsState extends State<AllPosts> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           createPostHead(),
-          Divider(),
           createPostDesc(),
           Divider(),
-          createPostFooter(),
+          UpvoteButton(),
+          Divider()
         ],
       ),
     );
@@ -108,51 +111,67 @@ class _AllPostsState extends State<AllPosts> {
         }
         User user = User.fromDocument(dataSnapshot.data);
         bool isPostOwner = currentUserOnlineId == ownerId;
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(user.url),
-            backgroundColor: Colors.grey,
-          ),
-          title: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+        return Padding(
+          padding: const EdgeInsets.only(left: 15.0, right: 15, bottom: 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                user.profileName,
-                style: GoogleFonts.ubuntu(
-                    fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Container(
-                height: 25,
-                width: 100,
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    type.toUpperCase(),
-                    style: GoogleFonts.montserrat(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12),
+              Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: CachedNetworkImageProvider(user.url),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.username,
+                        style: TextStyle(
+                          color: Colors.grey[900],
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Text(
+                        tAgo.format(
+                          timestamp,
+                        ),
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
+              isPostOwner
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.more_horiz,
+                        size: 20,
+                        color: Colors.grey[600],
+                      ),
+                      onPressed: () => controlPostDelete(context),
+                    )
+                  : Text(""),
             ],
           ),
-          trailing: isPostOwner
-              ? IconButton(
-                  icon: Icon(
-                    Icons.more_horiz,
-                    size: 20,
-                  ),
-                  onPressed: () => controlPostDelete(context),
-                )
-              : Text(""),
         );
       },
     );
@@ -160,49 +179,50 @@ class _AllPostsState extends State<AllPosts> {
 
   controlPostDelete(BuildContext mContext) {
     return showDialog(
-        context: mContext,
-        builder: (context) {
-          return SimpleDialog(
-            title: Text("What do you want to do?"),
-            children: [
-              SimpleDialogOption(
-                child: Row(
-                  children: [
-                    Icon(Icons.delete_outline),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "Delete the Post",
-                      style: GoogleFonts.montserrat(fontSize: 15),
-                    ),
-                  ],
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                  removeUserPost();
-                },
+      context: mContext,
+      builder: (context) {
+        return SimpleDialog(
+          title: Text("What do you want to do?"),
+          children: [
+            SimpleDialogOption(
+              child: Row(
+                children: [
+                  Icon(Icons.delete_outline),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "Delete the Post",
+                    style: GoogleFonts.montserrat(fontSize: 15),
+                  ),
+                ],
               ),
-              SimpleDialogOption(
-                child: Row(
-                  children: [
-                    Icon(Icons.cancel),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "Cancel",
-                      style: GoogleFonts.montserrat(fontSize: 15),
-                    ),
-                  ],
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+              onPressed: () {
+                Navigator.pop(context);
+                removeUserPost();
+              },
+            ),
+            SimpleDialogOption(
+              child: Row(
+                children: [
+                  Icon(Icons.cancel),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "Cancel",
+                    style: GoogleFonts.montserrat(fontSize: 15),
+                  ),
+                ],
               ),
-            ],
-          );
-        });
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   removeUserPost() async {
@@ -299,16 +319,33 @@ class _AllPostsState extends State<AllPosts> {
   createPostDesc() {
     return Padding(
       padding:
-          const EdgeInsets.only(left: 25.0, top: 10, right: 25, bottom: 10),
+          const EdgeInsets.only(left: 25.0, top: 12, right: 25, bottom: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.blueAccent,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Text(
+                  "$type".toUpperCase(),
+                  style: GoogleFonts.montserrat(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
           SelectableText(
             description,
-            style: GoogleFonts.montserrat(
-              color: Colors.black,
-              fontWeight: FontWeight.w400,
+            style: TextStyle(
+              color: Colors.grey[800],
+              height: 1.5,
+              letterSpacing: .7,
               fontSize: 16,
             ),
           ),
@@ -317,66 +354,47 @@ class _AllPostsState extends State<AllPosts> {
     );
   }
 
-  createPostFooter() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 20, bottom: 20),
-              child: GestureDetector(
-                onTap: () => controllUserLikedPost(),
-                //child: Icon(SimpleLineIcons.fire),
-                child: isLiked
-                    ? Icon(
-                        SimpleLineIcons.fire,
-                        color: Colors.red,
-                      )
-                    : Icon(SimpleLineIcons.fire),
-              ),
+  UpvoteButton() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 20.0, left: 15),
+      child: Row(
+        children: [
+          IconButton(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            onPressed: () => controllUserLikedPost(),
+            icon: isLiked
+                ? Icon(
+                    FontAwesome5Solid.fire,
+                    color: Colors.red,
+                  )
+                : Icon(FontAwesome5Solid.fire),
+          ),
+          Container(
+            child: Text("$likeCount"),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          FlatButton.icon(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            onPressed: () => displayComments(
+              context,
+              postId: postId,
+              ownerId: ownerId,
+              description: description,
+              type: type,
             ),
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(left: 10, bottom: 20),
-              child: Text(
-                "$likeCount likes",
-                style: GoogleFonts.montserrat(fontSize: 14),
-              ),
+            icon: Icon(
+              //Ionicons.md_chatboxes,
+              Octicons.comment_discussion,
+              color: Colors.red,
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 20, bottom: 20),
-              child: GestureDetector(
-                onTap: () => displayComments(
-                  context,
-                  postId: postId,
-                  ownerId: ownerId,
-                  description: description,
-                  type: type,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Octicons.comment_discussion,
-                      color: Colors.black,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Comments",
-                        style: GoogleFonts.montserrat(fontSize: 14),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
+            label: Text("Comment"),
+          ),
+        ],
+      ),
     );
   }
 

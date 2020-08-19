@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/Profile.dart';
+import 'package:westblockapp/models/Users.dart';
 
 class Followpage extends StatefulWidget {
   final String title;
+  final User gCurrentUser;
 
-  const Followpage({Key key, this.title}) : super(key: key);
+  const Followpage({Key key, this.title, this.gCurrentUser}) : super(key: key);
   @override
   _FollowpageState createState() => _FollowpageState();
 }
@@ -26,15 +28,22 @@ class _FollowpageState extends State<Followpage> {
               Navigator.push(
                 context,
                 CupertinoPageRoute(
-                  builder: (context) => ProfilePage(
-                    userProfileId: currentUser.id,
-                  ),
+                  builder: (context) =>
+                      ProfilePage(userProfileId: currentUser.id),
                 ),
               );
             },
             child: Padding(
               padding: const EdgeInsets.only(right: 20.0),
-              child: Icon(Icons.account_circle),
+              child: CircleAvatar(
+                backgroundColor: Colors.yellow,
+                radius: 17,
+                child: CircleAvatar(
+                  radius: 15,
+                  backgroundImage:
+                      CachedNetworkImageProvider(widget.gCurrentUser.url),
+                ),
+              ),
             ),
           )
         ],

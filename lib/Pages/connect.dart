@@ -31,7 +31,7 @@ class _ConnectpageState extends State<Connectpage> {
       loading = true;
     });
     QuerySnapshot querySnapshot =
-        await AllPostsReference.orderBy("timestamp", descending: false)
+        await AllPostsReference.orderBy("timestamp", descending: true)
             .getDocuments();
 
     setState(() {
@@ -190,7 +190,15 @@ class _ConnectpageState extends State<Connectpage> {
             },
             child: Padding(
               padding: const EdgeInsets.only(right: 20.0),
-              child: Icon(Icons.account_circle),
+              child: CircleAvatar(
+                backgroundColor: Colors.yellow,
+                radius: 17,
+                child: CircleAvatar(
+                  radius: 15,
+                  backgroundImage:
+                      CachedNetworkImageProvider(widget.gCurrentUser.url),
+                ),
+              ),
             ),
           )
         ],

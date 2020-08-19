@@ -101,22 +101,22 @@ class CommentsPageState extends State<CommentsPage> {
             title: TextFormField(
               controller: commentTextEditingController,
               decoration: InputDecoration(
-                labelText: "Comment Here",
-                labelStyle: GoogleFonts.montserrat(),
+                labelText: "Add Comment Here",
+                labelStyle: TextStyle(),
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
+                  borderSide: BorderSide(color: Colors.white),
                 ),
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                 ),
               ),
             ),
-            trailing: OutlineButton(
+            trailing: FlatButton(
               onPressed: saveComment,
               child: Text(
                 "Publish",
-                style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.bold, color: Colors.black),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
               ),
             ),
           ),
@@ -157,22 +157,36 @@ class Comment extends StatelessWidget {
               title: RichText(
                 text: TextSpan(children: [
                   TextSpan(
-                    text: "$userName",
-                    style: GoogleFonts.montserrat(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: ":    ",
-                    style: GoogleFonts.montserrat(color: Colors.black),
+                    text: "$userName ",
+                    style: TextStyle(
+                      color: Colors.grey[900],
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                   TextSpan(
                     text: "$comment",
-                    style: GoogleFonts.montserrat(color: Colors.black),
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      height: 1.5,
+                      letterSpacing: .7,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
                   ),
                 ]),
               ),
-              leading: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(url),
+              leading: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: CachedNetworkImageProvider(url),
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
               subtitle: Text(
                 tAgo.format(

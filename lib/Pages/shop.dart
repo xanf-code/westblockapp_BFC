@@ -1,14 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:westblockapp/Home/homepage.dart';
+import 'package:westblockapp/models/Users.dart';
 
 import 'Profile.dart';
 
 class Shoppage extends StatefulWidget {
   final String title;
+  final User gCurrentUser;
 
-  const Shoppage({Key key, this.title}) : super(key: key);
+  const Shoppage({Key key, this.title, this.gCurrentUser}) : super(key: key);
   @override
   _ShoppageState createState() => _ShoppageState();
 }
@@ -33,7 +36,15 @@ class _ShoppageState extends State<Shoppage> {
             },
             child: Padding(
               padding: const EdgeInsets.only(right: 20.0),
-              child: Icon(Icons.account_circle),
+              child: CircleAvatar(
+                backgroundColor: Colors.yellow,
+                radius: 17,
+                child: CircleAvatar(
+                  radius: 15,
+                  backgroundImage:
+                      CachedNetworkImageProvider(widget.gCurrentUser.url),
+                ),
+              ),
             ),
           )
         ],

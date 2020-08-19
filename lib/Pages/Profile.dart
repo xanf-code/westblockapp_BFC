@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:westblockapp/Home/homepage.dart';
+import 'package:westblockapp/Pages/ProfileRoutes/editProfilePage.dart';
+import 'package:westblockapp/Pages/ProfileRoutes/list.dart';
 import 'package:westblockapp/Widgets/postWidget.dart';
 import 'package:westblockapp/models/Users.dart';
 
@@ -75,40 +78,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Color(0xFF011589),
-        title: Text("Profile"),
-        centerTitle: false,
-      ),
-      body: ListView(
-        children: [
-          createProfileTopView(),
-          Divider(),
-          displayProfilePosts(),
-        ],
-      ),
-    );
-  }
-
-  displayProfilePosts() {
-    if (loading) {
-      return LinearProgressIndicator();
-    } else if (postList.isEmpty) {
-      return Container(
-        child: Center(
-          child: Text("No Posts"),
-        ),
-      );
-    }
-    return Column(
-      children: postList,
-    );
-  }
-
   getAllProfilePosts() async {
     setState(() {
       loading = true;
@@ -125,5 +94,114 @@ class _ProfilePageState extends State<ProfilePage> {
           .map((documentSnapshot) => Post.fromDocument(documentSnapshot))
           .toList();
     });
+  }
+
+  logOutUser() {
+    gSignIn.signOut();
+  }
+
+  profilePageButtons() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          ListTile(
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) =>
+                    EditProfile(currentOnlineUser: currentUser.id),
+              ),
+            ),
+            title: Text(
+              "Edit Profile",
+              style: GoogleFonts.ubuntu(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            leading: Icon(AntDesign.edit),
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+            ),
+          ),
+          ListTile(
+            leading: Icon(SimpleLineIcons.feed),
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) =>
+                      UserPosts(userProfileId: currentUser.id),
+                ),
+              );
+            },
+            title: Text(
+              "All Posts",
+              style: GoogleFonts.ubuntu(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: Icon(MaterialIcons.record_voice_over),
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+            ),
+            title: Text(
+              "Feedback",
+              style: GoogleFonts.ubuntu(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ListTile(
+            onTap: () {
+              logOutUser();
+              Navigator.pop(context);
+            },
+            leading: Icon(SimpleLineIcons.logout),
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+            ),
+            title: Text(
+              "Sign Out",
+              style: GoogleFonts.ubuntu(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Color(0xFF011589),
+        title: Text("Profile"),
+        centerTitle: false,
+      ),
+      body: ListView(
+        children: [
+          createProfileTopView(),
+          Divider(),
+          profilePageButtons(),
+        ],
+      ),
+    );
   }
 }
