@@ -17,6 +17,7 @@ final usersReference = Firestore.instance.collection("users");
 final postReference = Firestore.instance.collection("posts");
 final activityReference = Firestore.instance.collection("feed");
 final commentsReference = Firestore.instance.collection("comments");
+final AllPostsReference = Firestore.instance.collection("allPosts");
 
 final DateTime timestamp = DateTime.now();
 User currentUser;
@@ -99,14 +100,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Scaffold HomePage() {
     return Scaffold(
       body: <Widget>[
-//        Center(
-//          child: RaisedButton.icon(
-//            onPressed: logOutUser,
-//            icon: Icon(Icons.close),
-//            label: Text("Sign Out"),
-//          ),
-//        ),
-        Followpage(title: 'Follow'),
+        Center(
+          child: RaisedButton.icon(
+            onPressed: logOutUser,
+            icon: Icon(Icons.close),
+            label: Text("Sign Out"),
+          ),
+        ),
+//        Followpage(title: 'Follow'),
         Watchpage(title: 'Watch'),
         Connectpage(
           title: 'Connect',

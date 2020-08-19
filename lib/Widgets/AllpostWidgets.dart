@@ -8,7 +8,7 @@ import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/comments.dart';
 import 'package:westblockapp/models/Users.dart';
 
-class Post extends StatefulWidget {
+class AllPosts extends StatefulWidget {
   final String postId;
   final String ownerId;
   //final String timestamp;
@@ -16,7 +16,7 @@ class Post extends StatefulWidget {
   final String description;
   final String type;
 
-  Post(
+  AllPosts(
       {this.postId,
       this.ownerId,
       //this.timestamp,
@@ -24,8 +24,8 @@ class Post extends StatefulWidget {
       this.description,
       this.type});
 
-  factory Post.fromDocument(DocumentSnapshot documentSnapshot) {
-    return Post(
+  factory AllPosts.fromDocument(DocumentSnapshot documentSnapshot) {
+    return AllPosts(
       postId: documentSnapshot["postId"],
       ownerId: documentSnapshot["ownerId"],
       likes: documentSnapshot["likes"],
@@ -49,7 +49,7 @@ class Post extends StatefulWidget {
   }
 
   @override
-  _PostState createState() => _PostState(
+  _AllPostsState createState() => _AllPostsState(
         postId: this.postId,
         ownerId: this.ownerId,
         //timestamp: this.timestamp,
@@ -60,7 +60,7 @@ class Post extends StatefulWidget {
       );
 }
 
-class _PostState extends State<Post> {
+class _AllPostsState extends State<AllPosts> {
   final String postId;
   final String ownerId;
   //final String timestamp;
@@ -72,7 +72,7 @@ class _PostState extends State<Post> {
   bool showfire = false;
   final String currentUserOnlineId = currentUser?.id;
 
-  _PostState(
+  _AllPostsState(
       {this.postId,
       this.ownerId,
       //this.timestamp,
@@ -205,29 +205,6 @@ class _PostState extends State<Post> {
         });
   }
 
-//  removeUserPost() async {
-//    postReference
-//        .document(ownerId)
-//        .collection("usersPosts")
-//        .document(postId)
-//        .get()
-//        .then((document) {
-//      if (document.exists) {
-//        document.reference.delete();
-//      }
-//    });
-//    QuerySnapshot commentsQuerySnapshot = await commentsReference
-//        .document(postId)
-//        .collection("comments")
-//        .getDocuments();
-//
-//    commentsQuerySnapshot.documents.forEach((document) {
-//      if (document.exists) {
-//        document.reference.delete();
-//      }
-//    });
-//  }
-
   removeUserPost() async {
     postReference
         .document(ownerId)
@@ -239,18 +216,18 @@ class _PostState extends State<Post> {
         document.reference.delete();
       }
     });
+    AllPostsReference.document(postId).get().then((document) {
+      if (document.exists) {
+        document.reference.delete();
+      }
+    });
+
     QuerySnapshot commentsQuerySnapshot = await commentsReference
         .document(postId)
         .collection("comments")
         .getDocuments();
 
     commentsQuerySnapshot.documents.forEach((document) {
-      if (document.exists) {
-        document.reference.delete();
-      }
-    });
-
-    AllPostsReference.document(postId).get().then((document) {
       if (document.exists) {
         document.reference.delete();
       }
@@ -298,10 +275,7 @@ class _PostState extends State<Post> {
     bool _liked = likes[currentUserOnlineId] == true;
 
     if (_liked) {
-      postReference
-          .document(ownerId)
-          .collection("usersPosts")
-          .document(postId)
+      AllPostsReference.document(postId)
           .updateData({"likes.$currentUserOnlineId": false});
       removeLike();
       setState(() {
@@ -310,10 +284,7 @@ class _PostState extends State<Post> {
         likes[currentUserOnlineId] = false;
       });
     } else if (!_liked) {
-      postReference
-          .document(ownerId)
-          .collection("usersPosts")
-          .document(postId)
+      AllPostsReference.document(postId)
           .updateData({"likes.$currentUserOnlineId": true});
       addLike();
       setState(() {
@@ -352,6 +323,27 @@ class _PostState extends State<Post> {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            Padding(
+              padding: EdgeInsets.only(left: 20, bottom: 20),
+              child: GestureDetector(
+                onTap: () => controllUserLikedPost(),
+                //child: Icon(SimpleLineIcons.fire),
+                child: isLiked
+                    ? Icon(
+                        SimpleLineIcons.fire,
+                        color: Colors.red,
+                      )
+                    : Icon(SimpleLineIcons.fire),
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(left: 10, bottom: 20),
+              child: Text(
+                "$likeCount likes",
+                style: GoogleFonts.montserrat(fontSize: 14),
+              ),
+            ),
             Padding(
               padding: EdgeInsets.only(left: 20, bottom: 20),
               child: GestureDetector(

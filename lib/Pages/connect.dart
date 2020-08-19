@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/Profile.dart';
-import 'package:westblockapp/Widgets/postWidget.dart';
+import 'package:westblockapp/Widgets/AllpostWidgets.dart';
 import 'package:westblockapp/models/Users.dart';
 
 class Connectpage extends StatefulWidget {
@@ -23,30 +23,34 @@ class _ConnectpageState extends State<Connectpage> {
   String postId = Uuid().v4();
   TextEditingController postTextEditingController = TextEditingController();
   TextEditingController typeEditingController = TextEditingController();
-  List<Post> posts;
+  List<AllPosts> allposts = [];
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   getAllPosts() async {
+    setState(() {
+      loading = true;
+    });
     QuerySnapshot querySnapshot =
-        await postReference.orderBy("timestamp").getDocuments();
-
-    List<Post> allPosts = querySnapshot.documents
-        .map((document) => Post.fromDocument(document))
-        .toList();
+        await AllPostsReference.orderBy("timestamp", descending: false)
+            .getDocuments();
 
     setState(() {
-      this.posts = allPosts;
+      loading = false;
+      postList = querySnapshot.documents
+          .map((documentSnapshot) => AllPosts.fromDocument(documentSnapshot))
+          .toList();
     });
   }
 
   createFeed() {
-    if (posts == null) {
+    if (allposts == null) {
       return Center(
         child: CircularProgressIndicator(),
       );
     } else {
       return ListView(
-        children: posts,
+        physics: BouncingScrollPhysics(),
+        children: postList,
       );
     }
   }
@@ -62,8 +66,14 @@ class _ConnectpageState extends State<Connectpage> {
       uploading = true;
     });
     savePostToFirebase(
-        description: postTextEditingController.text,
-        type: typeEditingController.text);
+      description: postTextEditingController.text,
+      type: typeEditingController.text,
+    );
+
+    saveAllPostToFirebase(
+      description: postTextEditingController.text,
+      type: typeEditingController.text,
+    );
 
     postTextEditingController.clear();
     typeEditingController.clear();
@@ -80,6 +90,17 @@ class _ConnectpageState extends State<Connectpage> {
         .collection("usersPosts")
         .document(postId)
         .setData({
+      "postId": postId,
+      "ownerId": widget.gCurrentUser.id,
+      "timestamp": timestamp,
+      "likes": {},
+      "description": description,
+      "type": type
+    });
+  }
+
+  saveAllPostToFirebase({String description, String type}) {
+    AllPostsReference.document(postId).setData({
       "postId": postId,
       "ownerId": widget.gCurrentUser.id,
       "timestamp": timestamp,
@@ -130,7 +151,9 @@ class _ConnectpageState extends State<Connectpage> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: FlatButton(
-                  onPressed: () => controllUploadAndSave(),
+                  onPressed: () {
+                    controllUploadAndSave();
+                  },
                   color: Colors.grey,
                   child: Text(
                     "Post",
@@ -146,7 +169,7 @@ class _ConnectpageState extends State<Connectpage> {
   }
 
   bool loading = false;
-  List<Post> postList = [];
+  List<AllPosts> postList = [];
 
   @override
   Widget build(BuildContext context) {
