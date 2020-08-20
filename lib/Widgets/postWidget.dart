@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:readmore/readmore.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/comments.dart';
 import 'package:westblockapp/models/Users.dart';
@@ -11,18 +12,21 @@ import 'package:westblockapp/models/Users.dart';
 class Post extends StatefulWidget {
   final String postId;
   final String ownerId;
+  final String url;
   //final String timestamp;
   final dynamic likes;
   final String description;
   final String type;
 
-  Post(
-      {this.postId,
-      this.ownerId,
-      //this.timestamp,
-      this.likes,
-      this.description,
-      this.type});
+  Post({
+    this.postId,
+    this.ownerId,
+    //this.timestamp,
+    this.likes,
+    this.description,
+    this.type,
+    this.url,
+  });
 
   factory Post.fromDocument(DocumentSnapshot documentSnapshot) {
     return Post(
@@ -31,6 +35,7 @@ class Post extends StatefulWidget {
       likes: documentSnapshot["likes"],
       description: documentSnapshot["description"],
       type: documentSnapshot["type"],
+      url: documentSnapshot["url"],
     );
   }
 
@@ -54,6 +59,7 @@ class Post extends StatefulWidget {
         ownerId: this.ownerId,
         //timestamp: this.timestamp,
         likes: this.likes,
+        url: this.url,
         description: this.description,
         type: this.type,
         likeCount: getTotlaNumberOfLikes(this.likes),
@@ -65,6 +71,7 @@ class _PostState extends State<Post> {
   final String ownerId;
   //final String timestamp;
   Map likes;
+  final String url;
   final String description;
   final String type;
   int likeCount;
@@ -74,6 +81,7 @@ class _PostState extends State<Post> {
 
   _PostState(
       {this.postId,
+      this.url,
       this.ownerId,
       //this.timestamp,
       this.likes,
@@ -90,11 +98,28 @@ class _PostState extends State<Post> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           createPostHead(),
+          createPostBody(),
           createPostDesc(),
           Divider(),
           UpvoteButton(),
           Divider()
         ],
+      ),
+    );
+  }
+
+  createPostBody() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20.0, right: 20, top: 8),
+      child: Container(
+        height: 400,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: CachedNetworkImageProvider(url),
+          ),
+        ),
       ),
     );
   }
@@ -243,6 +268,9 @@ class _PostState extends State<Post> {
         document.reference.delete();
       }
     });
+
+    storageReference.child("post_$postId.jpg").delete();
+
     QuerySnapshot commentsQuerySnapshot = await commentsReference
         .document(postId)
         .collection("comments")
@@ -353,8 +381,13 @@ class _PostState extends State<Post> {
               ),
             ),
           ),
-          SelectableText(
+          ReadMoreText(
             description,
+            trimLines: 6,
+            colorClickableText: Colors.grey,
+            trimMode: TrimMode.Line,
+            trimCollapsedText: ' ...read more',
+            trimExpandedText: ' ..less',
             style: TextStyle(
               color: Colors.grey[800],
               height: 1.5,

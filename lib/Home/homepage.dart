@@ -1,5 +1,6 @@
 import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -18,6 +19,8 @@ final postReference = Firestore.instance.collection("posts");
 final activityReference = Firestore.instance.collection("feed");
 final commentsReference = Firestore.instance.collection("comments");
 final AllPostsReference = Firestore.instance.collection("allPosts");
+final StorageReference storageReference =
+    FirebaseStorage.instance.ref().child("Posts Pictures");
 
 final DateTime timestamp = DateTime.now();
 User currentUser;

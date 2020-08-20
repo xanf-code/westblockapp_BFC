@@ -39,6 +39,11 @@ dependencies:
   google_sign_in:
   uuid: ^2.2.0
   timeago: ^2.0.26
+  readmore: ^1.0.0
+  path_provider: ^1.6.11
+  image_picker: ^0.6.7+4
+  image: ^2.1.14
+  firebase_storage: ^3.1.6
 
 
 dev_dependencies:
