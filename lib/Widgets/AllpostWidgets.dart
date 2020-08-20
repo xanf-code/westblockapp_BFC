@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'package:readmore/readmore.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/comments.dart';
@@ -73,7 +74,6 @@ class _AllPostsState extends State<AllPosts> {
   final String ownerId;
   final String url;
   final DateTime timestamp;
-
   Map likes;
   final String description;
   final String type;
@@ -114,15 +114,48 @@ class _AllPostsState extends State<AllPosts> {
     );
   }
 
+  bool _isImageShown = false;
+
   createPostBody() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20.0, right: 20, top: 8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: CachedNetworkImage(
-          imageUrl: url,
-        ),
-      ),
+    return Stack(
+      children: <Widget>[
+        !_isImageShown
+            ? Center(
+                child: GestureDetector(
+                  onTap: () => setState(() => _isImageShown = !_isImageShown),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(left: 20.0, right: 20, top: 8),
+                    child: url != null
+                        ? Container(
+                            height: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: CachedNetworkImageProvider(url),
+                              ),
+                            ),
+                          )
+                        : SizedBox(),
+                  ),
+                ),
+              )
+            : SizedBox(),
+        _isImageShown
+            ? GestureDetector(
+                onTap: () => setState(() => _isImageShown = !_isImageShown),
+                child: Center(
+                  child: CachedNetworkImage(
+                    imageUrl: url,
+                    width: 500,
+                    height: 500,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
+            : SizedBox(),
+      ],
     );
   }
 
