@@ -263,29 +263,6 @@ class _PostState extends State<Post> {
         });
   }
 
-//  removeUserPost() async {
-//    postReference
-//        .document(ownerId)
-//        .collection("usersPosts")
-//        .document(postId)
-//        .get()
-//        .then((document) {
-//      if (document.exists) {
-//        document.reference.delete();
-//      }
-//    });
-//    QuerySnapshot commentsQuerySnapshot = await commentsReference
-//        .document(postId)
-//        .collection("comments")
-//        .getDocuments();
-//
-//    commentsQuerySnapshot.documents.forEach((document) {
-//      if (document.exists) {
-//        document.reference.delete();
-//      }
-//    });
-//  }
-
   removeUserPost() async {
     postReference
         .document(ownerId)
@@ -346,7 +323,7 @@ class _PostState extends State<Post> {
         "activityType": "like",
         "username": currentUser.username,
         "userId": currentUser.id,
-        "timestamp": timestamp,
+        "timestamp": DateTime.now(),
         "description": description,
         "type": type,
         "postId": postId,

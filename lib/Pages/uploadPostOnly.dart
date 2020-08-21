@@ -1,11 +1,9 @@
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
 import 'package:westblockapp/Home/homepage.dart';
-import 'package:westblockapp/Widgets/AllpostWidgets.dart';
 import 'package:westblockapp/models/Users.dart';
 
 class PostOnlyPage extends StatefulWidget {
@@ -20,15 +18,12 @@ class PostOnlyPage extends StatefulWidget {
 class _PostOnlyPageState extends State<PostOnlyPage> {
   bool uploading = false;
   String postId = Uuid().v4();
-  TextEditingController postTextEditingController = TextEditingController();
-  TextEditingController typeEditingController = TextEditingController();
-  List<AllPosts> allposts = [];
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-  bool loading = false;
-  List<AllPosts> postList = [];
-  File file;
+  TextEditingController onlyPostTextEditingController = TextEditingController();
+  TextEditingController onlyTypeEditingController = TextEditingController();
 
-  savePostToFirebase({String description, String type, String url}) {
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  savePostToFirebase({String description, String type}) {
     postReference
         .document(widget.gCurrentUser.id)
         .collection("usersPosts")
@@ -36,23 +31,24 @@ class _PostOnlyPageState extends State<PostOnlyPage> {
         .setData({
       "postId": postId,
       "ownerId": widget.gCurrentUser.id,
-      "timestamp": timestamp,
+      "timestamp": DateTime.now(),
       "likes": {},
       "description": description,
       "type": type,
-      "url": url
     });
   }
 
-  saveAllPostToFirebase({String description, String type, String url}) {
+  saveAllPostToFirebase({
+    String description,
+    String type,
+  }) {
     AllPostsReference.document(postId).setData({
       "postId": postId,
       "ownerId": widget.gCurrentUser.id,
-      "timestamp": timestamp,
+      "timestamp": DateTime.now(),
       "likes": {},
       "description": description,
       "type": type,
-      "url": url,
     });
   }
 
@@ -75,7 +71,7 @@ class _PostOnlyPageState extends State<PostOnlyPage> {
       body: ListView(
         physics: BouncingScrollPhysics(),
         children: [
-          uploading ? CircularProgressIndicator() : Text(""),
+          uploading ? LinearProgressIndicator() : Text(""),
           Padding(
             padding: const EdgeInsets.only(left: 10.0, top: 15, bottom: 8),
             child: Row(
@@ -106,7 +102,7 @@ class _PostOnlyPageState extends State<PostOnlyPage> {
                   width: MediaQuery.of(context).size.width,
                   height: 10 * 24.0,
                   child: TextField(
-                    controller: postTextEditingController,
+                    controller: onlyPostTextEditingController,
                     maxLength: 400,
                     maxLines: 10,
                     decoration: InputDecoration(
@@ -123,7 +119,7 @@ class _PostOnlyPageState extends State<PostOnlyPage> {
                   child: TextField(
                     maxLength: 10,
                     maxLines: null,
-                    controller: typeEditingController,
+                    controller: onlyTypeEditingController,
                     style: GoogleFonts.montserrat(),
                     decoration: InputDecoration(
                       hintText: "Post Type",
@@ -181,21 +177,18 @@ class _PostOnlyPageState extends State<PostOnlyPage> {
       uploading = true;
     });
 
-    String downloadUrl = null;
     savePostToFirebase(
-      url: downloadUrl,
-      description: postTextEditingController.text,
-      type: typeEditingController.text,
+      description: onlyPostTextEditingController.text,
+      type: onlyTypeEditingController.text,
     );
 
     saveAllPostToFirebase(
-      url: downloadUrl,
-      description: postTextEditingController.text,
-      type: typeEditingController.text,
+      description: onlyPostTextEditingController.text,
+      type: onlyTypeEditingController.text,
     );
 
-    postTextEditingController.clear();
-    typeEditingController.clear();
+    onlyPostTextEditingController.clear();
+    onlyTypeEditingController.clear();
 
     setState(() {
       uploading = false;
