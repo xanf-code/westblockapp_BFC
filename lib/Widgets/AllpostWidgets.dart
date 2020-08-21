@@ -114,8 +114,6 @@ class _AllPostsState extends State<AllPosts> {
     );
   }
 
-  bool _isImageShown = false;
-
   createPostBody() {
     return url != null
         ? Padding(
@@ -132,8 +130,8 @@ class _AllPostsState extends State<AllPosts> {
   }
 
   createPostHead() {
-    return FutureBuilder(
-      future: usersReference.document(ownerId).get(),
+    return StreamBuilder(
+      stream: usersReference.document(ownerId).snapshots(),
       builder: (context, dataSnapshot) {
         if (!dataSnapshot.hasData) {
           return LinearProgressIndicator();

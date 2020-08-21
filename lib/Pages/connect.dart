@@ -427,8 +427,10 @@ class _ConnectpageState extends State<Connectpage>
       maxWidth: 700,
       maxHeight: 700,
       androidUiSettings: AndroidUiSettings(
-        toolbarColor: Colors.deepOrange,
-        statusBarColor: Colors.deepOrange.shade900,
+        toolbarTitle: "Crop Image",
+        toolbarWidgetColor: Colors.white,
+        toolbarColor: Color(0xFF011589),
+        statusBarColor: Color(0xFF011589),
         backgroundColor: Colors.white,
       ),
     );

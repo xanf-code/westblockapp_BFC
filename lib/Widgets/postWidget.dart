@@ -108,49 +108,19 @@ class _PostState extends State<Post> {
     );
   }
 
-  bool _isImageShown = false;
-
   createPostBody() {
-    return Stack(
-      children: <Widget>[
-        !_isImageShown
-            ? Center(
-                child: GestureDetector(
-                  onTap: () => setState(() => _isImageShown = !_isImageShown),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 20.0, right: 20, top: 8),
-                    child: url != null
-                        ? Container(
-                            height: 300,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: CachedNetworkImageProvider(url),
-                              ),
-                            ),
-                          )
-                        : Container(),
-                  ),
-                ),
-              )
-            : SizedBox(),
-        _isImageShown
-            ? GestureDetector(
-                onTap: () => setState(() => _isImageShown = !_isImageShown),
-                child: Center(
-                  child: new CachedNetworkImage(
-                    imageUrl: url,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              )
-            : SizedBox(),
-      ],
-    );
+    return url != null
+        ? Padding(
+            padding: const EdgeInsets.only(
+                left: 20.0, right: 20, top: 12, bottom: 5),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: CachedNetworkImage(
+                imageUrl: url,
+              ),
+            ),
+          )
+        : SizedBox();
   }
 
   createPostHead() {
