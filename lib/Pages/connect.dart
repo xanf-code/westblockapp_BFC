@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdownfield/dropdownfield.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -26,8 +28,7 @@ class Connectpage extends StatefulWidget {
   _ConnectpageState createState() => _ConnectpageState();
 }
 
-class _ConnectpageState extends State<Connectpage>
-    with AutomaticKeepAliveClientMixin<Connectpage> {
+class _ConnectpageState extends State<Connectpage> {
   bool uploading = false;
   String postId = Uuid().v4();
   TextEditingController postTextEditingController = TextEditingController();
@@ -44,6 +45,7 @@ class _ConnectpageState extends State<Connectpage>
     });
     QuerySnapshot querySnapshot =
         await AllPostsReference.orderBy("timestamp", descending: true)
+            .limit(40)
             .getDocuments();
 
     setState(() {
@@ -139,6 +141,7 @@ class _ConnectpageState extends State<Connectpage>
       file = null;
       uploading = false;
       postId = Uuid().v4();
+      getAllPosts();
     });
   }
 
@@ -244,18 +247,21 @@ class _ConnectpageState extends State<Connectpage>
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 12.0, right: 12),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: TextField(
-                    maxLength: 10,
-                    maxLines: null,
-                    controller: typeEditingController,
-                    style: GoogleFonts.montserrat(),
-                    decoration: InputDecoration(
-                      hintText: "Post Type",
-                      border: OutlineInputBorder(),
+                child: DropDownField(
+                  inputFormatters: [
+                    WhitelistingTextInputFormatter(
+                      RegExp("[a-zA-Z]"),
                     ),
-                  ),
+                  ],
+                  itemsVisibleInDropdown: 5,
+                  hintText: "Select Type",
+                  controller: typeEditingController,
+                  items: typeslist,
+                  onValueChanged: (value) {
+                    setState(() {
+                      selectType = value;
+                    });
+                  },
                 ),
               ),
               Padding(
@@ -300,7 +306,18 @@ class _ConnectpageState extends State<Connectpage>
     );
   }
 
-  bool get wantKeepAlive => true;
+  String selectType = "";
+  List<String> typeslist = [
+    "offtopic",
+    "transfer",
+    "general",
+    "fan",
+    "stories",
+    "afc",
+    "isl",
+    "players",
+    'fanart',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -337,48 +354,49 @@ class _ConnectpageState extends State<Connectpage>
         centerTitle: false,
       ),
       key: scaffoldKey,
-      body: file == null ? timeline() : uploadForm(),
+      body: RefreshIndicator(
+        child: file == null ? timeline() : uploadForm(),
+        onRefresh: () => getAllPosts(),
+      ),
     );
   }
 
   timeline() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () => takeImage(context),
-            child: Container(
-              padding: EdgeInsets.fromLTRB(20, 15, 20, 0),
-              decoration: BoxDecoration(color: Colors.grey[100]),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.grey[200],
-                        backgroundImage:
-                            CachedNetworkImageProvider(currentUser.url),
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text("What\'s on your mind?"),
-                    ],
-                  ),
-                  Center(
-                    child: FlatButton.icon(
-                      icon: Icon(MaterialCommunityIcons.format_quote_open),
-                      label: Text("Post"),
+    return ListView(
+      children: [
+        GestureDetector(
+          onTap: () => takeImage(context),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(20, 15, 20, 0),
+            decoration: BoxDecoration(color: Colors.grey[100]),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.grey[200],
+                      backgroundImage:
+                          CachedNetworkImageProvider(currentUser.url),
                     ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text("What\'s on your mind?"),
+                  ],
+                ),
+                Center(
+                  child: FlatButton.icon(
+                    icon: Icon(MaterialCommunityIcons.format_quote_open),
+                    label: Text("Post"),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          createFeed(),
-        ],
-      ),
+        ),
+        createFeed(),
+      ],
     );
   }
 

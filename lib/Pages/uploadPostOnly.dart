@@ -1,9 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdownfield/dropdownfield.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
 import 'package:westblockapp/Home/homepage.dart';
+import 'package:westblockapp/Widgets/AllpostWidgets.dart';
 import 'package:westblockapp/models/Users.dart';
 
 class PostOnlyPage extends StatefulWidget {
@@ -112,20 +116,39 @@ class _PostOnlyPageState extends State<PostOnlyPage> {
                   ),
                 ),
               ),
+//              Padding(
+//                padding: const EdgeInsets.only(left: 12.0, right: 12),
+//                child: Container(
+//                  width: MediaQuery.of(context).size.width,
+//                  child: TextField(
+//                    maxLength: 10,
+//                    maxLines: null,
+//                    controller: onlyTypeEditingController,
+//                    style: GoogleFonts.montserrat(),
+//                    decoration: InputDecoration(
+//                      hintText: "Post Type",
+//                      border: OutlineInputBorder(),
+//                    ),
+//                  ),
+//                ),
+//              ),
               Padding(
                 padding: const EdgeInsets.only(left: 12.0, right: 12),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: TextField(
-                    maxLength: 10,
-                    maxLines: null,
-                    controller: onlyTypeEditingController,
-                    style: GoogleFonts.montserrat(),
-                    decoration: InputDecoration(
-                      hintText: "Post Type",
-                      border: OutlineInputBorder(),
+                child: DropDownField(
+                  inputFormatters: [
+                    WhitelistingTextInputFormatter(
+                      RegExp("[a-zA-Z]"),
                     ),
-                  ),
+                  ],
+                  itemsVisibleInDropdown: 10,
+                  hintText: "Select Type",
+                  controller: onlyTypeEditingController,
+                  items: typeslist,
+                  onValueChanged: (value) {
+                    setState(() {
+                      selectType = value;
+                    });
+                  },
                 ),
               ),
               Padding(
@@ -134,9 +157,9 @@ class _PostOnlyPageState extends State<PostOnlyPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: uploading
-                          ? null
-                          : () => controlPostOnlyUploadAndSave(),
+                      onTap: () {
+                        controlPostOnlyUploadAndSave();
+                      },
                       child: Container(
                         height: 50,
                         width: MediaQuery.of(context).size.width * 0.4,
@@ -172,11 +195,38 @@ class _PostOnlyPageState extends State<PostOnlyPage> {
     );
   }
 
-  controlPostOnlyUploadAndSave() async {
-    setState(() {
-      uploading = true;
-    });
+  String selectType = "";
+  List<String> typeslist = [
+    "offtopic",
+    "transfer",
+    "general",
+    "fan",
+    "stories",
+    "afc",
+    "isl",
+    "players",
+    'fanart',
+  ];
 
+  bool loading = false;
+  List<AllPosts> postList = [];
+  getAllPosts() async {
+    setState(() {
+      loading = true;
+    });
+    QuerySnapshot querySnapshot =
+        await AllPostsReference.orderBy("timestamp", descending: true)
+            .getDocuments();
+
+    setState(() {
+      loading = false;
+      postList = querySnapshot.documents
+          .map((documentSnapshot) => AllPosts.fromDocument(documentSnapshot))
+          .toList();
+    });
+  }
+
+  controlPostOnlyUploadAndSave() async {
     savePostToFirebase(
       description: onlyPostTextEditingController.text,
       type: onlyTypeEditingController.text,
@@ -189,6 +239,7 @@ class _PostOnlyPageState extends State<PostOnlyPage> {
 
     onlyPostTextEditingController.clear();
     onlyTypeEditingController.clear();
+    Navigator.pop(context);
 
     setState(() {
       uploading = false;

@@ -2,9 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:readmore/readmore.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/comments.dart';
@@ -121,8 +121,11 @@ class _AllPostsState extends State<AllPosts> {
                 left: 20.0, right: 20, top: 12, bottom: 5),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child: CachedNetworkImage(
-                imageUrl: url,
+              child: GestureDetector(
+                onDoubleTap: controllUserLikedPost,
+                child: CachedNetworkImage(
+                  imageUrl: url,
+                ),
               ),
             ),
           )
@@ -165,8 +168,8 @@ class _AllPostsState extends State<AllPosts> {
                       Text(
                         user.username,
                         style: TextStyle(
-                          color: Colors.grey[900],
-                          fontSize: 18,
+                          color: Colors.grey[700],
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
                         ),
@@ -331,6 +334,7 @@ class _AllPostsState extends State<AllPosts> {
         likeCount = likeCount - 1;
         isLiked = false;
         likes[currentUserOnlineId] = false;
+        HapticFeedback.mediumImpact();
       });
     } else if (!_liked) {
       AllPostsReference.document(postId)
@@ -341,6 +345,7 @@ class _AllPostsState extends State<AllPosts> {
         isLiked = true;
         likes[currentUserOnlineId] = true;
         showfire = true;
+        HapticFeedback.mediumImpact();
       });
     }
   }
@@ -380,10 +385,12 @@ class _AllPostsState extends State<AllPosts> {
                 onPressed: () => controllUserLikedPost(),
                 icon: isLiked
                     ? Icon(
-                        FontAwesome5Solid.arrow_alt_circle_up,
-                        color: Colors.red,
+                        MaterialCommunityIcons.thumb_up,
+                        color: Colors.deepPurple,
                       )
-                    : Icon(FontAwesome5Solid.arrow_alt_circle_down),
+                    : Icon(
+                        MaterialCommunityIcons.thumb_up_outline,
+                      ),
               ),
               Container(
                 child: Text("$likeCount votes"),
@@ -394,13 +401,16 @@ class _AllPostsState extends State<AllPosts> {
               FlatButton.icon(
                 highlightColor: Colors.transparent,
                 splashColor: Colors.transparent,
-                onPressed: () => displayComments(
-                  context,
-                  postId: postId,
-                  ownerId: ownerId,
-                  description: description,
-                  type: type,
-                ),
+                onPressed: () {
+                  displayComments(
+                    context,
+                    postId: postId,
+                    ownerId: ownerId,
+                    description: description,
+                    type: type,
+                  );
+                  HapticFeedback.mediumImpact();
+                },
                 icon: Icon(
                   //Ionicons.md_chatboxes,
                   Octicons.comment_discussion,
