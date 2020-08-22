@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:timeago/timeago.dart' as tAgo;
 
@@ -83,6 +84,7 @@ class CommentsPageState extends State<CommentsPage> {
     commentTextEditingController.clear();
   }
 
+  var _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,36 +93,46 @@ class CommentsPageState extends State<CommentsPage> {
         title: Text("Comments"),
         centerTitle: false,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: displayComments(),
-          ),
-          Divider(),
-          ListTile(
-            title: TextFormField(
-              controller: commentTextEditingController,
-              decoration: InputDecoration(
-                labelText: "Add Comment Here",
-                labelStyle: TextStyle(),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Expanded(
+              child: displayComments(),
+            ),
+            ListTile(
+              title: TextFormField(
+                validator: (String value) {
+                  if (value.isEmpty) {
+                    return "This field cannot be empty!";
+                  } else {
+                    return null;
+                  }
+                },
+                controller: commentTextEditingController,
+                decoration: InputDecoration(
+                  labelText: "Add Comment Here",
+                  labelStyle: TextStyle(),
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
                 ),
               ),
-            ),
-            trailing: FlatButton(
-              onPressed: saveComment,
-              child: Text(
-                "Publish",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              trailing: FlatButton.icon(
+                onPressed: () {
+                  setState(() {
+                    if (_formKey.currentState.validate()) {
+                      saveComment();
+                    }
+                  });
+                  //saveComment
+                },
+                icon: Icon(LineAwesomeIcons.send),
+                label: Text("send"),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/ProfileRoutes/editProfilePage.dart';
 import 'package:westblockapp/Pages/ProfileRoutes/list.dart';
@@ -34,21 +35,19 @@ class _ProfilePageState extends State<ProfilePage> {
         }
         User user = User.fromDocument(dataSnapshot.data);
         return Padding(
-          padding: EdgeInsets.all(17.0),
+          padding: EdgeInsets.only(top: 30.0, bottom: 15),
           child: Column(
             children: [
-              Row(
+              Column(
                 children: [
                   CircleAvatar(
                     radius: 45,
                     backgroundImage: CachedNetworkImageProvider(user.url),
                   ),
                   SizedBox(
-                    width: 20,
+                    height: 20,
                   ),
                   Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         user.profileName,
@@ -63,6 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Text(
                         user.email,
                         style: GoogleFonts.ubuntu(
+                          color: Colors.grey[500],
                           fontWeight: FontWeight.w400,
                           fontSize: 14,
                         ),
@@ -101,88 +101,65 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   profilePageButtons() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          ListTile(
-            onTap: () => Navigator.push(
+    return Column(
+      children: [
+        SizedBox(
+          height: 20,
+        ),
+        GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (context) =>
+                  EditProfile(currentOnlineUser: currentUser.id),
+            ),
+          ),
+          child: buttons(
+            icon: LineAwesomeIcons.pencil_square_o,
+            text: "Edit Profile",
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
               context,
               CupertinoPageRoute(
-                builder: (context) =>
-                    EditProfile(currentOnlineUser: currentUser.id),
+                builder: (context) => UserPosts(userProfileId: currentUser.id),
               ),
-            ),
-            title: Text(
-              "Edit Profile",
-              style: GoogleFonts.ubuntu(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            leading: Icon(AntDesign.edit),
-            trailing: Icon(
-              Icons.arrow_forward_ios,
-              size: 14,
-            ),
+            );
+          },
+          child: buttons(
+            icon: LineAwesomeIcons.history,
+            text: "Post History",
           ),
-          ListTile(
-            leading: Icon(SimpleLineIcons.feed),
-            trailing: Icon(
-              Icons.arrow_forward_ios,
-              size: 14,
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                CupertinoPageRoute(
-                  builder: (context) =>
-                      UserPosts(userProfileId: currentUser.id),
-                ),
-              );
-            },
-            title: Text(
-              "All Posts",
-              style: GoogleFonts.ubuntu(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+        ),
+        buttons(
+          icon: LineAwesomeIcons.cog,
+          text: "Settings",
+        ),
+        buttons(
+          icon: LineAwesomeIcons.user_plus,
+          text: "Invite a Friend",
+        ),
+        buttons(
+          icon: LineAwesomeIcons.question_circle,
+          text: "Help & Support",
+        ),
+        buttons(
+          icon: LineAwesomeIcons.user_secret,
+          text: "Privacy",
+        ),
+        GestureDetector(
+          onTap: () {
+            logOutUser();
+            Navigator.pop(context);
+          },
+          child: buttons(
+            icon: LineAwesomeIcons.sign_out,
+            text: "Logout",
           ),
-          ListTile(
-            leading: Icon(MaterialIcons.record_voice_over),
-            trailing: Icon(
-              Icons.arrow_forward_ios,
-              size: 14,
-            ),
-            title: Text(
-              "Feedback",
-              style: GoogleFonts.ubuntu(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          ListTile(
-            onTap: () {
-              logOutUser();
-              Navigator.pop(context);
-            },
-            leading: Icon(SimpleLineIcons.logout),
-            trailing: Icon(
-              Icons.arrow_forward_ios,
-              size: 14,
-            ),
-            title: Text(
-              "Sign Out",
-              style: GoogleFonts.ubuntu(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -196,11 +173,62 @@ class _ProfilePageState extends State<ProfilePage> {
         centerTitle: false,
       ),
       body: ListView(
+        physics: BouncingScrollPhysics(),
         children: [
           createProfileTopView(),
-          Divider(),
           profilePageButtons(),
         ],
+      ),
+    );
+  }
+}
+
+class buttons extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const buttons({
+    Key key,
+    this.icon,
+    this.text,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 10 * 5.5,
+      margin: EdgeInsets.symmetric(
+        horizontal: 10 * 4.0,
+      ).copyWith(bottom: 10 * 2.0),
+      decoration: BoxDecoration(
+        color: Color(0xFFF3F7FB),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              this.icon,
+              size: 10 * 2.5,
+            ),
+            SizedBox(
+              width: 10 * 2.5,
+            ),
+            Text(
+              this.text,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Spacer(),
+            Icon(
+              SimpleLineIcons.arrow_right,
+              size: 10,
+            ),
+          ],
+        ),
       ),
     );
   }

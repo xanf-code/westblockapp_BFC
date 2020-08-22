@@ -184,124 +184,126 @@ class _ConnectpageState extends State<Connectpage> {
 
   uploadForm() {
     return Scaffold(
-      body: ListView(
-        physics: BouncingScrollPhysics(),
-        children: [
-          uploading ? LinearProgressIndicator() : Text(""),
-          Padding(
-            padding: const EdgeInsets.only(left: 10.0, top: 15, bottom: 8),
-            child: Row(
+      body: Form(
+        child: ListView(
+          physics: BouncingScrollPhysics(),
+          children: [
+            uploading ? LinearProgressIndicator() : Text(""),
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0, top: 15, bottom: 8),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(widget
+                                .gCurrentUser.url ==
+                            null
+                        ? "https://upload.wikimedia.org/wikipedia/en/a/ac/West_Block_Blues_logo_transparent.png"
+                        : widget.gCurrentUser.url),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    currentUser.username,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+            Column(
               children: [
-                CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(widget
-                              .gCurrentUser.url ==
-                          null
-                      ? "https://upload.wikimedia.org/wikipedia/en/a/ac/West_Block_Blues_logo_transparent.png"
-                      : widget.gCurrentUser.url),
+                Container(
+                  height: 230,
+                  width: MediaQuery.of(context).size.width * .8,
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(file),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                SizedBox(
-                  width: 10,
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 12.0, right: 12, top: 12, bottom: 8),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 10 * 24.0,
+                    child: TextField(
+                      controller: postTextEditingController,
+                      maxLength: 400,
+                      maxLines: 10,
+                      decoration: InputDecoration(
+                        hintText: "Enter Post Description",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
                 ),
-                Text(
-                  currentUser.username,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0, right: 12),
+                  child: DropDownField(
+                    inputFormatters: [
+                      WhitelistingTextInputFormatter(
+                        RegExp("[a-zA-Z]"),
+                      ),
+                    ],
+                    itemsVisibleInDropdown: 5,
+                    hintText: "Select Type",
+                    controller: typeEditingController,
+                    items: typeslist,
+                    onValueChanged: (value) {
+                      setState(() {
+                        selectType = value;
+                      });
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: uploading ? null : () => controlUploadAndSave(),
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.save,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                "Post to feed",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-          Column(
-            children: [
-              Container(
-                height: 230,
-                width: MediaQuery.of(context).size.width * .8,
-                child: Center(
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: FileImage(file),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    left: 12.0, right: 12, top: 12, bottom: 8),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 10 * 24.0,
-                  child: TextField(
-                    controller: postTextEditingController,
-                    maxLength: 400,
-                    maxLines: 10,
-                    decoration: InputDecoration(
-                      hintText: "Enter Post Description",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 12.0, right: 12),
-                child: DropDownField(
-                  inputFormatters: [
-                    WhitelistingTextInputFormatter(
-                      RegExp("[a-zA-Z]"),
-                    ),
-                  ],
-                  itemsVisibleInDropdown: 5,
-                  hintText: "Select Type",
-                  controller: typeEditingController,
-                  items: typeslist,
-                  onValueChanged: (value) {
-                    setState(() {
-                      selectType = value;
-                    });
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: uploading ? null : () => controlUploadAndSave(),
-                      child: Container(
-                        height: 50,
-                        width: MediaQuery.of(context).size.width * 0.4,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.save,
-                              color: Colors.white,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Post to feed",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

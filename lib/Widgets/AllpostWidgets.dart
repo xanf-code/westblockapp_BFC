@@ -386,7 +386,7 @@ class _AllPostsState extends State<AllPosts> {
                 icon: isLiked
                     ? Icon(
                         MaterialCommunityIcons.thumb_up,
-                        color: Colors.deepPurple,
+                        color: Colors.red,
                       )
                     : Icon(
                         MaterialCommunityIcons.thumb_up_outline,
@@ -424,16 +424,16 @@ class _AllPostsState extends State<AllPosts> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.all(6.0),
                   child: Center(
                     child: Text(
                       "$type".toUpperCase(),
                       style: GoogleFonts.montserrat(
-                          color: Colors.white, fontSize: 13),
+                          color: Colors.blueAccent, fontSize: 12),
                     ),
                   ),
                 ),

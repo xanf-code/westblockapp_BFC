@@ -165,7 +165,6 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("Google SignIn"),
             FlatButton(
               onPressed: loginUser,
               color: Colors.deepPurple,
