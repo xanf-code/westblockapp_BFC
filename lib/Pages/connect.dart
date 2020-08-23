@@ -56,101 +56,101 @@ class _ConnectpageState extends State<Connectpage> {
     });
   }
 
-  timeline() {
-    return ListView(
-      children: [
-        Container(
-          padding: EdgeInsets.fromLTRB(12, 8, 12, 0),
-          child: Form(
-            key: _formKey,
-            child: Column(
+  topWidget() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(12, 8, 12, 0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundImage: CachedNetworkImageProvider(widget
-                                  .gCurrentUser.url ==
-                              null
-                          ? "https://upload.wikimedia.org/wikipedia/en/a/ac/West_Block_Blues_logo_transparent.png"
-                          : widget.gCurrentUser.url),
-                      radius: 20,
-                    ),
-                    SizedBox(
-                      width: 8.0,
-                    ),
-                    Expanded(
-                      child: TextFormField(
-                        validator: (String value) {
-                          if (value.isEmpty) {
-                            return "This field cannot be empty!";
-                          } else {
-                            return null;
-                          }
-                        },
-                        controller: onlyPostTextEditingController,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          hintText: "Enter Post Description",
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
+                CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(widget
+                              .gCurrentUser.url ==
+                          null
+                      ? "https://upload.wikimedia.org/wikipedia/en/a/ac/West_Block_Blues_logo_transparent.png"
+                      : widget.gCurrentUser.url),
+                  radius: 20,
                 ),
-                DropDownField(
-                  inputFormatters: [
-                    WhitelistingTextInputFormatter(
-                      RegExp("[a-zA-Z]"),
-                    ),
-                  ],
-                  itemsVisibleInDropdown: 10,
-                  hintText: "Select Tag",
-                  controller: onlyTypeEditingController,
-                  items: typeslist,
-                  onValueChanged: (value) {
-                    setState(() {
-                      selectType = value;
-                    });
-                  },
+                SizedBox(
+                  width: 10.0,
                 ),
-                Divider(
-                  height: 10,
-                  thickness: 0.5,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    FlatButton.icon(
-                      onPressed: () => takeImage(context),
-                      icon: Icon(LineAwesomeIcons.file_photo_o),
-                      label: Text("Photo"),
+                Expanded(
+                  child: TextFormField(
+                    validator: (String value) {
+                      if (value.isEmpty) {
+                        return "This field cannot be empty!";
+                      } else {
+                        return null;
+                      }
+                    },
+                    controller: onlyPostTextEditingController,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                      hintText: "What's on your mind?",
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
                     ),
-                    FlatButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          if (_formKey.currentState.validate()) {
-                            controlPostOnlyUploadAndSave();
-                            getAllPosts();
-                          }
-                        });
-                      },
-                      icon: Icon(LineAwesomeIcons.pencil),
-                      label: Text("Post"),
-                    ),
-                  ],
-                ),
-                Divider(
-                  height: 10,
-                  thickness: 0.5,
+                  ),
                 ),
               ],
             ),
-          ),
+            DropDownField(
+              inputFormatters: [
+                WhitelistingTextInputFormatter(
+                  RegExp("[a-zA-Z]"),
+                ),
+              ],
+              itemsVisibleInDropdown: 3,
+              hintText: "Select Tag",
+              controller: onlyTypeEditingController,
+              items: typeslist,
+              onValueChanged: (value) {
+                setState(() {
+                  selectType = value;
+                });
+              },
+            ),
+            Divider(
+              height: 10,
+              thickness: 0.5,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                FlatButton.icon(
+                  onPressed: () => takeImage(context),
+                  icon: Icon(LineAwesomeIcons.file_photo_o),
+                  label: Text("Photo"),
+                ),
+                FlatButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      if (_formKey.currentState.validate()) {
+                        controlPostOnlyUploadAndSave();
+                        getAllPosts();
+                      }
+                    });
+                  },
+                  icon: Icon(LineAwesomeIcons.pencil),
+                  label: Text("Post"),
+                ),
+              ],
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  timeline() {
+    return ListView(
+      children: [
+        topWidget(),
         createFeed(),
       ],
     );
@@ -456,7 +456,10 @@ class _ConnectpageState extends State<Connectpage> {
         centerTitle: false,
       ),
       key: scaffoldKey,
-      body: file == null ? timeline() : uploadForm(),
+      body: RefreshIndicator(
+        child: file == null ? timeline() : uploadForm(),
+        onRefresh: () => getAllPosts(),
+      ),
     );
   }
 

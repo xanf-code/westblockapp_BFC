@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:readmore/readmore.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/comments.dart';
 import 'package:westblockapp/models/Users.dart';
@@ -124,6 +125,11 @@ class _AllPostsState extends State<AllPosts> {
               child: GestureDetector(
                 onDoubleTap: controllUserLikedPost,
                 child: CachedNetworkImage(
+                  placeholder: (context, url) => CachedNetworkImage(
+                    imageUrl:
+                        "https://cdn.dribbble.com/users/1091213/screenshots/4203966/800_600.gif",
+                  ),
+                  fadeInCurve: Curves.easeIn,
                   imageUrl: url,
                 ),
               ),
