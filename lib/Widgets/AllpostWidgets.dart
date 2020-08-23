@@ -120,7 +120,7 @@ class _AllPostsState extends State<AllPosts> {
             padding: const EdgeInsets.only(
                 left: 20.0, right: 20, top: 12, bottom: 5),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(10),
               child: GestureDetector(
                 onDoubleTap: controllUserLikedPost,
                 child: CachedNetworkImage(

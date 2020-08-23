@@ -10,11 +10,11 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/Profile.dart';
-import 'package:westblockapp/Pages/uploadPostOnly.dart';
 import 'package:westblockapp/Widgets/AllpostWidgets.dart';
 import 'package:westblockapp/models/Users.dart';
 import 'package:image/image.dart' as ImD;
@@ -54,6 +54,106 @@ class _ConnectpageState extends State<Connectpage> {
           .map((documentSnapshot) => AllPosts.fromDocument(documentSnapshot))
           .toList();
     });
+  }
+
+  timeline() {
+    return ListView(
+      children: [
+        Container(
+          padding: EdgeInsets.fromLTRB(12, 8, 12, 0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(widget
+                                  .gCurrentUser.url ==
+                              null
+                          ? "https://upload.wikimedia.org/wikipedia/en/a/ac/West_Block_Blues_logo_transparent.png"
+                          : widget.gCurrentUser.url),
+                      radius: 20,
+                    ),
+                    SizedBox(
+                      width: 8.0,
+                    ),
+                    Expanded(
+                      child: TextFormField(
+                        validator: (String value) {
+                          if (value.isEmpty) {
+                            return "This field cannot be empty!";
+                          } else {
+                            return null;
+                          }
+                        },
+                        controller: onlyPostTextEditingController,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          hintText: "Enter Post Description",
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                DropDownField(
+                  inputFormatters: [
+                    WhitelistingTextInputFormatter(
+                      RegExp("[a-zA-Z]"),
+                    ),
+                  ],
+                  itemsVisibleInDropdown: 10,
+                  hintText: "Select Tag",
+                  controller: onlyTypeEditingController,
+                  items: typeslist,
+                  onValueChanged: (value) {
+                    setState(() {
+                      selectType = value;
+                    });
+                  },
+                ),
+                Divider(
+                  height: 10,
+                  thickness: 0.5,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    FlatButton.icon(
+                      onPressed: () => takeImage(context),
+                      icon: Icon(LineAwesomeIcons.file_photo_o),
+                      label: Text("Photo"),
+                    ),
+                    FlatButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          if (_formKey.currentState.validate()) {
+                            controlPostOnlyUploadAndSave();
+                            getAllPosts();
+                          }
+                        });
+                      },
+                      icon: Icon(LineAwesomeIcons.pencil),
+                      label: Text("Post"),
+                    ),
+                  ],
+                ),
+                Divider(
+                  height: 10,
+                  thickness: 0.5,
+                ),
+              ],
+            ),
+          ),
+        ),
+        createFeed(),
+      ],
+    );
   }
 
   createFeed() {
@@ -309,7 +409,7 @@ class _ConnectpageState extends State<Connectpage> {
   }
 
   String selectType = "";
-  List<String> typeslist = [
+  var typeslist = [
     "offtopic",
     "transfer",
     "general",
@@ -356,50 +456,32 @@ class _ConnectpageState extends State<Connectpage> {
         centerTitle: false,
       ),
       key: scaffoldKey,
-      body: RefreshIndicator(
-        child: file == null ? timeline() : uploadForm(),
-        onRefresh: () => getAllPosts(),
-      ),
+      body: file == null ? timeline() : uploadForm(),
     );
   }
 
-  timeline() {
-    return ListView(
-      children: [
-        GestureDetector(
-          onTap: () => takeImage(context),
-          child: Container(
-            padding: EdgeInsets.fromLTRB(20, 15, 20, 0),
-            decoration: BoxDecoration(color: Colors.grey[100]),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Colors.grey[200],
-                      backgroundImage:
-                          CachedNetworkImageProvider(currentUser.url),
-                    ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    Text("What\'s on your mind?"),
-                  ],
-                ),
-                Center(
-                  child: FlatButton.icon(
-                    icon: Icon(MaterialCommunityIcons.format_quote_open),
-                    label: Text("Post"),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        createFeed(),
-      ],
+  var _formKey = GlobalKey<FormState>();
+  TextEditingController onlyPostTextEditingController = TextEditingController();
+  TextEditingController onlyTypeEditingController = TextEditingController();
+
+  controlPostOnlyUploadAndSave() async {
+    savePostToFirebase(
+      description: onlyPostTextEditingController.text,
+      type: onlyTypeEditingController.text,
     );
+
+    saveAllPostToFirebase(
+      description: onlyPostTextEditingController.text,
+      type: onlyTypeEditingController.text,
+    );
+
+    onlyPostTextEditingController.clear();
+    onlyTypeEditingController.clear();
+
+    setState(() {
+      uploading = false;
+      postId = Uuid().v4();
+    });
   }
 
   takeImage(mContext) {
@@ -409,20 +491,6 @@ class _ConnectpageState extends State<Connectpage> {
         return SimpleDialog(
           title: Text("New Post"),
           children: [
-            SimpleDialogOption(
-              child: Text("Post without picture"),
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => PostOnlyPage(
-                      gCurrentUser: currentUser,
-                    ),
-                  ),
-                );
-              },
-            ),
             SimpleDialogOption(
               onPressed: pickFromGallery,
               child: Text("Pick From Gallery"),
