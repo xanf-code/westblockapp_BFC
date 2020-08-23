@@ -1,426 +1,24 @@
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dropdownfield/dropdownfield.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:line_awesome_icons/line_awesome_icons.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
 import 'package:westblockapp/Home/homepage.dart';
-import 'package:westblockapp/Pages/Profile.dart';
-import 'package:westblockapp/Widgets/AllpostWidgets.dart';
+import 'package:westblockapp/Pages/ForumRoutes/afc.dart';
+import 'package:westblockapp/Pages/ForumRoutes/allFeed.dart';
+import 'package:westblockapp/Pages/ForumRoutes/fanart.dart';
+import 'package:westblockapp/Pages/ForumRoutes/isl.dart';
+import 'package:westblockapp/Pages/ForumRoutes/offtopic.dart';
+import 'package:westblockapp/Pages/ForumRoutes/players.dart';
+import 'package:westblockapp/Pages/ForumRoutes/preseason.dart';
+import 'package:westblockapp/Pages/ForumRoutes/transfer.dart';
+import 'package:westblockapp/Widgets/CardsWidget.dart';
 import 'package:westblockapp/models/Users.dart';
-import 'package:image/image.dart' as ImD;
+import 'Profile.dart';
 
-class Connectpage extends StatefulWidget {
+class Connectpage extends StatelessWidget {
   final String title;
   final User gCurrentUser;
 
-  const Connectpage({Key key, this.title, this.gCurrentUser});
-  @override
-  _ConnectpageState createState() => _ConnectpageState();
-}
-
-class _ConnectpageState extends State<Connectpage> {
-  bool uploading = false;
-  String postId = Uuid().v4();
-  TextEditingController postTextEditingController = TextEditingController();
-  TextEditingController typeEditingController = TextEditingController();
-  List<AllPosts> allposts = [];
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-  bool loading = false;
-  List<AllPosts> postList = [];
-  File file;
-
-  getAllPosts() async {
-    setState(() {
-      loading = true;
-    });
-    QuerySnapshot querySnapshot =
-        await AllPostsReference.orderBy("timestamp", descending: true)
-            .limit(40)
-            .getDocuments();
-
-    setState(() {
-      loading = false;
-      postList = querySnapshot.documents
-          .map((documentSnapshot) => AllPosts.fromDocument(documentSnapshot))
-          .toList();
-    });
-  }
-
-  topWidget() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(12, 8, 12, 0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(widget
-                              .gCurrentUser.url ==
-                          null
-                      ? "https://upload.wikimedia.org/wikipedia/en/a/ac/West_Block_Blues_logo_transparent.png"
-                      : widget.gCurrentUser.url),
-                  radius: 20,
-                ),
-                SizedBox(
-                  width: 10.0,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    validator: (String value) {
-                      if (value.isEmpty) {
-                        return "This field cannot be empty!";
-                      } else {
-                        return null;
-                      }
-                    },
-                    controller: onlyPostTextEditingController,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                      hintText: "What's on your mind?",
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            DropDownField(
-              inputFormatters: [
-                WhitelistingTextInputFormatter(
-                  RegExp("[a-zA-Z]"),
-                ),
-              ],
-              itemsVisibleInDropdown: 3,
-              hintText: "Select Tag",
-              controller: onlyTypeEditingController,
-              items: typeslist,
-              onValueChanged: (value) {
-                setState(() {
-                  selectType = value;
-                });
-              },
-            ),
-            Divider(
-              height: 10,
-              thickness: 0.5,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                FlatButton.icon(
-                  onPressed: () => takeImage(context),
-                  icon: Icon(LineAwesomeIcons.file_photo_o),
-                  label: Text("Photo"),
-                ),
-                FlatButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      if (_formKey.currentState.validate()) {
-                        controlPostOnlyUploadAndSave();
-                        getAllPosts();
-                      }
-                    });
-                  },
-                  icon: Icon(LineAwesomeIcons.pencil),
-                  label: Text("Post"),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  timeline() {
-    return ListView(
-      children: [
-        topWidget(),
-        createFeed(),
-      ],
-    );
-  }
-
-  createFeed() {
-    if (loading) {
-      return Center(
-        child: LinearProgressIndicator(),
-      );
-    } else if (postList.isEmpty) {
-      return Container(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CachedNetworkImage(
-                height: 300,
-                width: 300,
-                imageUrl:
-                    "https://png.pngtree.com/svg/20161030/nodata_800056.png",
-              ),
-              Text(
-                "oops it's empty :(",
-                style: GoogleFonts.montserrat(
-                  color: Colors.grey[400],
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: Column(
-        children: postList,
-      ),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getAllPosts();
-  }
-
-  compressingPhoto() async {
-    final tDirectory = await getTemporaryDirectory();
-    final path = tDirectory.path;
-    ImD.Image mImageFile = ImD.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_$postId.jpg')
-      ..writeAsBytesSync(
-        ImD.encodeJpg(mImageFile, quality: 75),
-      );
-    setState(() {
-      file = compressedImageFile;
-    });
-  }
-
-  controlUploadAndSave() async {
-    setState(() {
-      uploading = true;
-    });
-
-    await compressingPhoto();
-
-    String downloadUrl = await uploadPhoto(file);
-
-    savePostToFirebase(
-      url: downloadUrl,
-      description: postTextEditingController.text,
-      type: typeEditingController.text,
-    );
-
-    saveAllPostToFirebase(
-      url: downloadUrl,
-      description: postTextEditingController.text,
-      type: typeEditingController.text,
-    );
-
-    postTextEditingController.clear();
-    typeEditingController.clear();
-
-    setState(() {
-      file = null;
-      uploading = false;
-      postId = Uuid().v4();
-      getAllPosts();
-    });
-  }
-
-  savePostToFirebase({String description, String type, String url}) {
-    postReference
-        .document(widget.gCurrentUser.id)
-        .collection("usersPosts")
-        .document(postId)
-        .setData({
-      "postId": postId,
-      "ownerId": widget.gCurrentUser.id,
-      "timestamp": DateTime.now(),
-      "likes": {},
-      "description": description,
-      "type": type,
-      "url": url
-    });
-  }
-
-  saveAllPostToFirebase({String description, String type, String url}) {
-    AllPostsReference.document(postId).setData({
-      "postId": postId,
-      "ownerId": widget.gCurrentUser.id,
-      "timestamp": DateTime.now(),
-      "likes": {},
-      "description": description,
-      "type": type,
-      "url": url,
-    });
-  }
-
-  Future<String> uploadPhoto(mImageFile) async {
-    StorageUploadTask mStorageUploadTask =
-        storageReference.child("post_$postId.jpg").putFile(mImageFile);
-    StorageTaskSnapshot storageTaskSnapshot =
-        await mStorageUploadTask.onComplete;
-    String downloadUrl = await storageTaskSnapshot.ref.getDownloadURL();
-    return downloadUrl;
-  }
-
-  uploadForm() {
-    return Scaffold(
-      body: Form(
-        child: ListView(
-          physics: BouncingScrollPhysics(),
-          children: [
-            uploading ? LinearProgressIndicator() : Text(""),
-            Padding(
-              padding: const EdgeInsets.only(left: 10.0, top: 15, bottom: 8),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(widget
-                                .gCurrentUser.url ==
-                            null
-                        ? "https://upload.wikimedia.org/wikipedia/en/a/ac/West_Block_Blues_logo_transparent.png"
-                        : widget.gCurrentUser.url),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    currentUser.username,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              children: [
-                Container(
-                  height: 230,
-                  width: MediaQuery.of(context).size.width * .8,
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: FileImage(file),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 12.0, right: 12, top: 12, bottom: 8),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 10 * 24.0,
-                    child: TextField(
-                      controller: postTextEditingController,
-                      maxLength: 400,
-                      maxLines: 10,
-                      decoration: InputDecoration(
-                        hintText: "Enter Post Description",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0, right: 12),
-                  child: DropDownField(
-                    inputFormatters: [
-                      WhitelistingTextInputFormatter(
-                        RegExp("[a-zA-Z]"),
-                      ),
-                    ],
-                    itemsVisibleInDropdown: 5,
-                    hintText: "Select Type",
-                    controller: typeEditingController,
-                    items: typeslist,
-                    onValueChanged: (value) {
-                      setState(() {
-                        selectType = value;
-                      });
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: uploading ? null : () => controlUploadAndSave(),
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width * 0.4,
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.save,
-                                color: Colors.white,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                "Post to feed",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String selectType = "";
-  var typeslist = [
-    "offtopic",
-    "transfer",
-    "general",
-    "fan",
-    "stories",
-    "afc",
-    "isl",
-    "players",
-    'fanart',
-  ];
-
+  const Connectpage({Key key, this.gCurrentUser, this.title}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -445,88 +43,249 @@ class _ConnectpageState extends State<Connectpage> {
                 radius: 17,
                 child: CircleAvatar(
                   radius: 15,
-                  backgroundImage:
-                      CachedNetworkImageProvider(widget.gCurrentUser.url),
+                  backgroundImage: CachedNetworkImageProvider(gCurrentUser.url),
                 ),
               ),
             ),
           )
         ],
-        title: Text(this.widget.title),
+        title: Text(this.title),
         centerTitle: false,
       ),
-      key: scaffoldKey,
-      body: RefreshIndicator(
-        child: file == null ? timeline() : uploadForm(),
-        onRefresh: () => getAllPosts(),
-      ),
-    );
-  }
-
-  var _formKey = GlobalKey<FormState>();
-  TextEditingController onlyPostTextEditingController = TextEditingController();
-  TextEditingController onlyTypeEditingController = TextEditingController();
-
-  controlPostOnlyUploadAndSave() async {
-    savePostToFirebase(
-      description: onlyPostTextEditingController.text,
-      type: onlyTypeEditingController.text,
-    );
-
-    saveAllPostToFirebase(
-      description: onlyPostTextEditingController.text,
-      type: onlyTypeEditingController.text,
-    );
-
-    onlyPostTextEditingController.clear();
-    onlyTypeEditingController.clear();
-
-    setState(() {
-      uploading = false;
-      postId = Uuid().v4();
-    });
-  }
-
-  takeImage(mContext) {
-    return showDialog(
-      context: mContext,
-      builder: (context) {
-        return SimpleDialog(
-          title: Text("New Post"),
-          children: [
-            SimpleDialogOption(
-              onPressed: pickFromGallery,
-              child: Text("Pick From Gallery"),
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return [
+            SliverAppBar(
+              snap: false,
+              backgroundColor: Colors.transparent,
+              expandedHeight: 450,
+              flexibleSpace: FlexibleSpaceBar(
+                background: CachedNetworkImage(
+                  fit: BoxFit.cover,
+                  imageUrl: "https://pbs.twimg.com/media/Ef7UyvzUwAEp6Gm.jpg",
+                ),
+              ),
             ),
+          ];
+        },
+        body: ListView(
+          children: [
+            feedHome(context),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
-  pickFromGallery() async {
-    Navigator.pop(context);
-    File imageFile = await ImagePicker.pickImage(
-      source: ImageSource.gallery,
+  Column feedHome(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 12.0,
+            top: 15,
+            bottom: 10,
+          ),
+          child: Text(
+            "Feed Home",
+            style: TextStyle(
+              color: Color(0xFF011589),
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => TransferForumpage(
+                  gCurrentUser: currentUser,
+                  title: "Transfer",
+                ),
+              ),
+            );
+          },
+          child: Cards(
+            image:
+                "https://pbs.twimg.com/profile_images/1431292496/transfa_400x400.jpg",
+            title: "Trending Transfer Related News 🔁",
+            subtitle: "transfer",
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => OFTForumpage(
+                  gCurrentUser: currentUser,
+                  title: "Off Topic",
+                ),
+              ),
+            );
+          },
+          child: Cards(
+            image:
+                "https://s01.sgp1.cdn.digitaloceanspaces.com/article/124042-mzwnyhneyn-1563441580.jpg",
+            title: "Off topics discussion thread 🇮🇳⚽",
+            subtitle: "off topic",
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => AFCForumpage(
+                  gCurrentUser: currentUser,
+                  title: "AFC Cup",
+                ),
+              ),
+            );
+          },
+          child: Cards(
+            image:
+                "https://www.the-afc.com/img/image/upload/t_l2/v1561949779/zfw18hzaxgltalrpmydx.jpg",
+            title: "AFC Tournament discussion thread 🏆🌎",
+            subtitle: "asia",
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => ISLForumpage(
+                  gCurrentUser: currentUser,
+                  title: "Indian Super League",
+                ),
+              ),
+            );
+          },
+          child: Cards(
+            image:
+                "https://staticg.sportskeeda.com/editor/2020/08/d1b2c-15975764416564-800.jpg",
+            title: "Indian Super League thread 🏆",
+            subtitle: "isl",
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => PlayersForumpage(
+                  gCurrentUser: currentUser,
+                  title: "Players Discussion",
+                ),
+              ),
+            );
+          },
+          child: Cards(
+            image:
+                "https://thefangarage.com/upload/media/Screenshot-20200407160247-765x450.png",
+            title: "Players Discussion thread",
+            subtitle: "players",
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => PreseasonForumpage(
+                  gCurrentUser: currentUser,
+                  title: "Preseason",
+                ),
+              ),
+            );
+          },
+          child: Cards(
+            image:
+                "https://c.ndtvimg.com/bhttpu7_bengaluru-fc-twitter_625x300_27_July_18.jpg?q=60&imwidth=555",
+            title: "Preseason discussion thread ⏱",
+            subtitle: "pre-season",
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => FanartForumpage(
+                  gCurrentUser: currentUser,
+                  title: "Fan Art",
+                ),
+              ),
+            );
+          },
+          child: Cards(
+            image:
+                "https://www.bengalurufc.com/wp-content/uploads/2019/09/First-Team-Mugshot.jpg",
+            title: "Fan Art thread 🎨",
+            subtitle: "fans",
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => AllFeedForumpage(
+                  gCurrentUser: currentUser,
+                  title: "All Feed",
+                ),
+              ),
+            );
+          },
+          child: Cards(
+            image:
+                "https://e00-marca.uecdn.es/assets/multimedia/imagenes/2017/06/28/14986550559577.jpg",
+            title: "All Topics Feed",
+            subtitle: "General",
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+      ],
     );
-    File croppedImage = await ImageCropper.cropImage(
-      sourcePath: imageFile.path,
-      aspectRatio: CropAspectRatio(
-        ratioX: 1,
-        ratioY: 1,
-      ),
-      maxWidth: 700,
-      maxHeight: 700,
-      androidUiSettings: AndroidUiSettings(
-        toolbarTitle: "Crop Image",
-        toolbarWidgetColor: Colors.white,
-        toolbarColor: Color(0xFF011589),
-        statusBarColor: Color(0xFF011589),
-        backgroundColor: Colors.white,
-      ),
-    );
-    setState(() {
-      this.file = croppedImage;
-    });
   }
 }

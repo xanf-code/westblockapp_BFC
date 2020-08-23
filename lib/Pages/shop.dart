@@ -80,120 +80,124 @@ class shopWidget extends StatelessWidget {
                 (BuildContext context, bool innerBoxIsScrolled) {
               return [
                 SliverAppBar(
+                  snap: false,
                   expandedHeight: 450,
                   floating: false,
                   pinned: false,
                   backgroundColor: Colors.white,
                   //snapshot.data.documents[index]["image"]
                   //snapshot.data.documents.length
-                  flexibleSpace: PageView.builder(
-                    physics: BouncingScrollPhysics(),
-                    itemCount: snapshot.data.documents.length,
-                    itemBuilder: (context, i) {
-                      if (!snapshot.hasData) {
-                        return CircularProgressIndicator();
-                      } else {
-                        return PageView(
-                          children: [
-                            CachedNetworkImage(
-                              fit: BoxFit.cover,
-                              imageUrl: snapshot.data.documents[i]["image"],
-                            )
-                          ],
-                        );
-                      }
-                    },
-                  ),
+                  flexibleSpace: buildPageView(snapshot),
                 ),
               ];
             },
-            body: StreamBuilder(
-              stream: Firestore.instance
-                  .collection("merch")
-                  .orderBy("id", descending: false)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else {
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: GridView.builder(
-                          physics: BouncingScrollPhysics(),
-                          padding: EdgeInsets.only(
-                              top: 10, left: 10, right: 10, bottom: 10),
-                          itemCount: snapshot.data.documents.length,
-                          gridDelegate:
-                              new SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisSpacing: 20,
-                                  mainAxisSpacing: 20,
-                                  childAspectRatio: 0.75,
-                                  crossAxisCount:
-                                      (orientation == Orientation.portrait)
-                                          ? 2
-                                          : 3),
-                          itemBuilder: (BuildContext context, int index) {
-                            return Column(
-                              children: [
-                                Container(
-                                  height: 180,
-                                  width: 180,
-                                  child: CachedNetworkImage(
-                                    imageUrl: snapshot.data.documents[index]
-                                        ['pic'],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  snapshot.data.documents[index]['title'],
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Color(0xff010c8a),
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                GestureDetector(
-                                  onTap: () => launch(
-                                    "${snapshot.data.documents[index]["clicklink"]}",
-                                  ),
-                                  child: Container(
-                                    height: 43,
-                                    width:
-                                        MediaQuery.of(context).size.width * .4,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xff010c8a),
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "SHOP NOW",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+            body: buildStreamBuilder(),
+          );
+        }
+      },
+    );
+  }
+
+  StreamBuilder<QuerySnapshot> buildStreamBuilder() {
+    return StreamBuilder(
+      stream: Firestore.instance
+          .collection("merch")
+          .orderBy("id", descending: false)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          return Column(
+            children: [
+              Expanded(
+                child: GridView.builder(
+                  physics: BouncingScrollPhysics(),
+                  padding:
+                      EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 10),
+                  itemCount: snapshot.data.documents.length,
+                  gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: 0.75,
+                      crossAxisCount:
+                          (orientation == Orientation.portrait) ? 2 : 3),
+                  itemBuilder: (BuildContext context, int index) {
+                    return Column(
+                      children: [
+                        Container(
+                          height: 180,
+                          width: 180,
+                          child: CachedNetworkImage(
+                            imageUrl: snapshot.data.documents[index]['pic'],
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                }
-              },
-            ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          snapshot.data.documents[index]['title'],
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xff010c8a),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        GestureDetector(
+                          onTap: () => launch(
+                            "${snapshot.data.documents[index]["clicklink"]}",
+                          ),
+                          child: Container(
+                            height: 43,
+                            width: MediaQuery.of(context).size.width * .4,
+                            decoration: BoxDecoration(
+                              color: Color(0xff010c8a),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "SHOP NOW",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  PageView buildPageView(AsyncSnapshot snapshot) {
+    return PageView.builder(
+      physics: BouncingScrollPhysics(),
+      itemCount: snapshot.data.documents.length,
+      itemBuilder: (context, i) {
+        if (!snapshot.hasData) {
+          return CircularProgressIndicator();
+        } else {
+          return PageView(
+            children: [
+              CachedNetworkImage(
+                fit: BoxFit.cover,
+                imageUrl: snapshot.data.documents[i]["image"],
+              )
+            ],
           );
         }
       },

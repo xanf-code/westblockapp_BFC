@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:line_awesome_icons/line_awesome_icons.dart';
 import 'package:westblockapp/Pages/CreateAccount.dart';
 import 'package:westblockapp/Pages/Follow.dart';
 import 'package:westblockapp/Pages/connect.dart';
@@ -135,8 +136,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           BubbleBottomBarItem(
             backgroundColor: Colors.white,
-            icon: Icon(Feather.play_circle, color: Colors.white70),
-            activeIcon: Icon(Feather.play_circle, color: Colors.white),
+            icon: Icon(LineAwesomeIcons.play, color: Colors.white70),
+            activeIcon: Icon(LineAwesomeIcons.play, color: Colors.white),
             title: Text("Watch"),
           ),
           BubbleBottomBarItem(
