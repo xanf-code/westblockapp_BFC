@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:readmore/readmore.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:westblockapp/Home/homepage.dart';
 import 'package:westblockapp/Pages/comments.dart';
 import 'package:westblockapp/models/Users.dart';
@@ -272,7 +271,7 @@ class _AllPostsState extends State<AllPosts> {
         document.reference.delete();
       }
     });
-    AllPostsReference.document(postId).get().then((document) {
+    allPostsReference.document(postId).get().then((document) {
       if (document.exists) {
         document.reference.delete();
       }
@@ -333,7 +332,8 @@ class _AllPostsState extends State<AllPosts> {
     bool _liked = likes[currentUserOnlineId] == true;
 
     if (_liked) {
-      AllPostsReference.document(postId)
+      allPostsReference
+          .document(postId)
           .updateData({"likes.$currentUserOnlineId": false});
       removeLike();
       setState(() {
@@ -343,7 +343,8 @@ class _AllPostsState extends State<AllPosts> {
         HapticFeedback.mediumImpact();
       });
     } else if (!_liked) {
-      AllPostsReference.document(postId)
+      allPostsReference
+          .document(postId)
           .updateData({"likes.$currentUserOnlineId": true});
       addLike();
       setState(() {

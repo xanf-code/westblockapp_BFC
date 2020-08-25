@@ -52,7 +52,8 @@ class _WatchpageState extends State<Watchpage> {
         centerTitle: false,
       ),
       body: Center(
-        child: Text('Watch Page'),
+        child: Text(
+            'Watch Page\n(Video feed page, WBB youtube playlist, interviews\ndocumentaries xD)'),
       ),
     );
   }

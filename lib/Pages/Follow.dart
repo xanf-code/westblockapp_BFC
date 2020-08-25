@@ -51,7 +51,8 @@ class _FollowpageState extends State<Followpage> {
         centerTitle: false,
       ),
       body: Center(
-        child: Text('Follow Page'),
+        child: Text(
+            'Follow Page\n(Main Feed page with blogs and featured news\nMatchday preview, league standings\nprev match scores, kannada blogs)'),
       ),
     );
   }

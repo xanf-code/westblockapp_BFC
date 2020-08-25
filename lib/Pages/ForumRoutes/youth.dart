@@ -16,16 +16,17 @@ import 'package:westblockapp/Widgets/AllpostWidgets.dart';
 import 'package:westblockapp/models/Users.dart';
 import 'package:image/image.dart' as ImD;
 
-class PlayersForumpage extends StatefulWidget {
+class YouthForumpage extends StatefulWidget {
   final String title;
   final User gCurrentUser;
 
-  const PlayersForumpage({Key key, this.title, this.gCurrentUser});
+  const YouthForumpage({Key key, this.title, this.gCurrentUser});
+
   @override
-  _PlayersForumpageState createState() => _PlayersForumpageState();
+  _YouthForumpageState createState() => _YouthForumpageState();
 }
 
-class _PlayersForumpageState extends State<PlayersForumpage> {
+class _YouthForumpageState extends State<YouthForumpage> {
   bool uploading = false;
   String postId = Uuid().v4();
   TextEditingController postTextEditingController = TextEditingController();
@@ -47,7 +48,7 @@ class _PlayersForumpageState extends State<PlayersForumpage> {
       loading = true;
     });
     QuerySnapshot querySnapshot = await allPostsReference
-        .where("type", isEqualTo: "players")
+        .where("type", isEqualTo: "academy")
         .orderBy("timestamp", descending: true)
         .getDocuments();
 
@@ -208,7 +209,7 @@ class _PlayersForumpageState extends State<PlayersForumpage> {
                 Visibility(
                   visible: false,
                   child: TextFormField(
-                    controller: typeEditingController..text = "players",
+                    controller: typeEditingController..text = "academy",
                   ),
                 ),
                 Padding(
@@ -300,7 +301,7 @@ class _PlayersForumpageState extends State<PlayersForumpage> {
             Visibility(
               visible: false,
               child: TextFormField(
-                controller: onlyTypeEditingController..text = "players",
+                controller: onlyTypeEditingController..text = "academy",
               ),
             ),
             Divider(

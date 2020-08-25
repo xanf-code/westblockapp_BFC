@@ -46,10 +46,10 @@ class _ISLForumpageState extends State<ISLForumpage> {
     setState(() {
       loading = true;
     });
-    QuerySnapshot querySnapshot =
-        await AllPostsReference.where("type", isEqualTo: "isl")
-            .orderBy("timestamp", descending: true)
-            .getDocuments();
+    QuerySnapshot querySnapshot = await allPostsReference
+        .where("type", isEqualTo: "isl")
+        .orderBy("timestamp", descending: true)
+        .getDocuments();
 
     setState(() {
       loading = false;
@@ -121,7 +121,7 @@ class _ISLForumpageState extends State<ISLForumpage> {
   }
 
   saveAllPostToFirebase({String description, String type, String url}) {
-    AllPostsReference.document(postId).setData({
+    allPostsReference.document(postId).setData({
       "postId": postId,
       "ownerId": widget.gCurrentUser.id,
       "timestamp": DateTime.now(),

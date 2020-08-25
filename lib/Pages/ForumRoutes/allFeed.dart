@@ -49,9 +49,9 @@ class _AllFeedForumpageState extends State<AllFeedForumpage> {
     setState(() {
       loading = true;
     });
-    QuerySnapshot querySnapshot =
-        await AllPostsReference.orderBy("timestamp", descending: true)
-            .getDocuments();
+    QuerySnapshot querySnapshot = await allPostsReference
+        .orderBy("timestamp", descending: true)
+        .getDocuments();
 
     setState(() {
       loading = false;
@@ -265,7 +265,7 @@ class _AllFeedForumpageState extends State<AllFeedForumpage> {
   }
 
   saveAllPostToFirebase({String description, String type, String url}) {
-    AllPostsReference.document(postId).setData({
+    allPostsReference.document(postId).setData({
       "postId": postId,
       "ownerId": widget.gCurrentUser.id,
       "timestamp": DateTime.now(),
@@ -420,7 +420,8 @@ class _AllFeedForumpageState extends State<AllFeedForumpage> {
     "isl",
     "players",
     'fanart',
-    "preseason"
+    "preseason",
+    "academy",
   ];
 
   @override

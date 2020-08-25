@@ -27,8 +27,26 @@ class _UserPostsState extends State<UserPosts> {
       return LinearProgressIndicator();
     } else if (postList.isEmpty) {
       return Container(
-        child: Center(
-          child: Text("No Posts"),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CachedNetworkImage(
+                height: 300,
+                width: 300,
+                imageUrl:
+                    "https://png.pngtree.com/svg/20161030/nodata_800056.png",
+              ),
+              Text(
+                "oops it's empty :(",
+                style: GoogleFonts.montserrat(
+                  color: Colors.grey[400],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }

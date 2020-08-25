@@ -258,7 +258,7 @@ class _PostState extends State<Post> {
       }
     });
 
-    AllPostsReference.document(postId).get().then((document) {
+    allPostsReference.document(postId).get().then((document) {
       if (document.exists) {
         document.reference.delete();
       }

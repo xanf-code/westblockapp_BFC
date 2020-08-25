@@ -10,17 +10,28 @@ import 'package:westblockapp/Pages/ForumRoutes/offtopic.dart';
 import 'package:westblockapp/Pages/ForumRoutes/players.dart';
 import 'package:westblockapp/Pages/ForumRoutes/preseason.dart';
 import 'package:westblockapp/Pages/ForumRoutes/transfer.dart';
+import 'package:westblockapp/Pages/ForumRoutes/youth.dart';
 import 'package:westblockapp/Widgets/CardsWidget.dart';
 import 'package:westblockapp/models/Users.dart';
 import 'Profile.dart';
 
-class Connectpage extends StatelessWidget {
+class Connectpage extends StatefulWidget {
   final String title;
   final User gCurrentUser;
 
   const Connectpage({Key key, this.gCurrentUser, this.title}) : super(key: key);
+
+  @override
+  _ConnectpageState createState() => _ConnectpageState();
+}
+
+class _ConnectpageState extends State<Connectpage>
+    with AutomaticKeepAliveClientMixin<Connectpage> {
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -43,36 +54,41 @@ class Connectpage extends StatelessWidget {
                 radius: 17,
                 child: CircleAvatar(
                   radius: 15,
-                  backgroundImage: CachedNetworkImageProvider(gCurrentUser.url),
+                  backgroundImage:
+                      CachedNetworkImageProvider(widget.gCurrentUser.url),
                 ),
               ),
             ),
           )
         ],
-        title: Text(this.title),
+        title: Text(this.widget.title),
         centerTitle: false,
       ),
-      body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return [
-            SliverAppBar(
-              snap: false,
-              backgroundColor: Colors.transparent,
-              expandedHeight: 450,
-              flexibleSpace: FlexibleSpaceBar(
-                background: CachedNetworkImage(
-                  fit: BoxFit.cover,
-                  imageUrl: "https://pbs.twimg.com/media/Ef7UyvzUwAEp6Gm.jpg",
-                ),
+      body: nestedBuilder(context),
+    );
+  }
+
+  NestedScrollView nestedBuilder(BuildContext context) {
+    return NestedScrollView(
+      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+        return [
+          SliverAppBar(
+            snap: false,
+            backgroundColor: Colors.transparent,
+            expandedHeight: 450,
+            flexibleSpace: FlexibleSpaceBar(
+              background: CachedNetworkImage(
+                fit: BoxFit.cover,
+                imageUrl: "https://pbs.twimg.com/media/Ef7UyvzUwAEp6Gm.jpg",
               ),
             ),
-          ];
-        },
-        body: ListView(
-          children: [
-            feedHome(context),
-          ],
-        ),
+          ),
+        ];
+      },
+      body: ListView(
+        children: [
+          feedHome(context),
+        ],
       ),
     );
   }
@@ -256,6 +272,29 @@ class Connectpage extends StatelessWidget {
                 "https://www.bengalurufc.com/wp-content/uploads/2019/09/First-Team-Mugshot.jpg",
             title: "Fan Art thread 🎨",
             subtitle: "fans",
+          ),
+        ),
+        Divider(
+          height: 10,
+          thickness: .5,
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => YouthForumpage(
+                  gCurrentUser: currentUser,
+                  title: "Academy",
+                ),
+              ),
+            );
+          },
+          child: Cards(
+            image:
+                "https://soccerschools.bengalurufc.com/wp-content/uploads/2018/08/SS-6.jpg",
+            title: "Academy, U-17, U-16, 2nd Division",
+            subtitle: "Youth, reserves ",
           ),
         ),
         Divider(
