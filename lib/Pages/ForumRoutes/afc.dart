@@ -312,7 +312,7 @@ class _AFCForumpageState extends State<AFCForumpage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 FlatButton.icon(
-                  onPressed: () => takeImage(context),
+                  onPressed: () => pickFromGallery(),
                   icon: Icon(LineAwesomeIcons.file_photo_o),
                   label: Text("Photo"),
                 ),
@@ -427,25 +427,7 @@ class _AFCForumpageState extends State<AFCForumpage> {
     });
   }
 
-  takeImage(mContext) {
-    return showDialog(
-      context: mContext,
-      builder: (context) {
-        return SimpleDialog(
-          title: Text("New Post"),
-          children: [
-            SimpleDialogOption(
-              onPressed: pickFromGallery,
-              child: Text("Pick From Gallery"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   pickFromGallery() async {
-    Navigator.pop(context);
     File imageFile = await ImagePicker.pickImage(
       source: ImageSource.gallery,
     );

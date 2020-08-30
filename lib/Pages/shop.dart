@@ -146,14 +146,14 @@ class shopWidget extends StatelessWidget {
                           ),
                         ),
                         SizedBox(
-                          height: 10,
+                          height: 5,
                         ),
                         GestureDetector(
                           onTap: () => launch(
                             "${snapshot.data.documents[index]["clicklink"]}",
                           ),
                           child: Container(
-                            height: 43,
+                            height: 29,
                             width: MediaQuery.of(context).size.width * .4,
                             decoration: BoxDecoration(
                               color: Color(0xff010c8a),

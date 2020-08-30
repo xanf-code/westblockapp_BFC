@@ -119,20 +119,20 @@ class _ProfilePageState extends State<ProfilePage> {
             text: "Edit Profile",
           ),
         ),
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (context) => UserPosts(userProfileId: currentUser.id),
-              ),
-            );
-          },
-          child: buttons(
-            icon: LineAwesomeIcons.history,
-            text: "Post History",
-          ),
-        ),
+//        GestureDetector(
+//          onTap: () {
+//            Navigator.push(
+//              context,
+//              CupertinoPageRoute(
+//                builder: (context) => UserPosts(userProfileId: currentUser.id),
+//              ),
+//            );
+//          },
+//          child: buttons(
+//            icon: LineAwesomeIcons.history,
+//            text: "Post History",
+//          ),
+//        ),
         buttons(
           icon: LineAwesomeIcons.cog,
           text: "Settings",

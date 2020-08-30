@@ -1,3 +1,4 @@
+import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -6,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:line_awesome_icons/line_awesome_icons.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:westblockapp/Pages/CreateAccount.dart';
 import 'package:westblockapp/Pages/Follow.dart';
 import 'package:westblockapp/Pages/connect.dart';
@@ -39,14 +39,13 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _controller = PersistentTabController(initialIndex: 0);
     gSignIn.onCurrentUserChanged.listen((gSignInAccount) {
-      controlSignIn(gSignInAccount);
+      ControllSignIn(gSignInAccount);
     }, onError: (gError) {
       print("Error :" + gError);
     });
     gSignIn.signInSilently(suppressErrors: false).then((gSignInAccount) {
-      controlSignIn(gSignInAccount);
+      ControllSignIn(gSignInAccount);
     }).catchError((onError) {
       print("Error" + onError);
     });
@@ -58,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  controlSignIn(GoogleSignInAccount signInAccount) async {
+  ControllSignIn(GoogleSignInAccount signInAccount) async {
     if (signInAccount != null) {
       await saveUserToFirebase();
       setState(() {
@@ -103,108 +102,77 @@ class _MyHomePageState extends State<MyHomePage> {
     gSignIn.signOut();
   }
 
-  PersistentTabController _controller;
-
-  List<Widget> _buildScreens() {
-    return [
-      Followpage(
-        title: 'Follow',
-        gCurrentUser: currentUser,
-      ),
-      Watchpage(
-        title: 'Watch',
-        gCurrentUser: currentUser,
-      ),
-      Connectpage(
-        title: 'Connect',
-        gCurrentUser: currentUser,
-      ),
-      Shoppage(
-        title: 'Shop',
-        gCurrentUser: currentUser,
-      ),
-      MorePage(
-        title: 'More',
-        gCurrentUser: currentUser,
-      ),
-    ];
-  }
-
-  List<PersistentBottomNavBarItem> _navBarsItems() {
-    return [
-      PersistentBottomNavBarItem(
-        icon: Icon(
-          Ionicons.ios_football,
-          size: 22,
+  Scaffold HomePage() {
+    return Scaffold(
+      body: <Widget>[
+        Followpage(
+          title: 'Follow',
+          gCurrentUser: currentUser,
         ),
-        title: ("Follow"),
-        activeColor: CupertinoColors.white,
-        inactiveColor: Colors.white70,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(
-          LineAwesomeIcons.play,
-          size: 22,
+        Watchpage(
+          title: 'Watch',
+          gCurrentUser: currentUser,
         ),
-        title: ("Watch"),
-        activeColor: CupertinoColors.white,
-        inactiveColor: Colors.white70,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(
-          Icons.chat_bubble_outline,
-          size: 22,
+        Connectpage(
+          title: 'Connect',
+          gCurrentUser: currentUser,
         ),
-        title: ("Connect"),
-        activeColor: CupertinoColors.white,
-        inactiveColor: Colors.white70,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(
-          Feather.shopping_bag,
-          size: 22,
+        Shoppage(
+          title: 'Shop',
+          gCurrentUser: currentUser,
         ),
-        title: ("Shop"),
-        activeColor: CupertinoColors.white,
-        inactiveColor: Colors.white70,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(
-          MaterialCommunityIcons.dots_horizontal_circle_outline,
-          size: 22,
+        MorePage(
+          title: 'More',
+          gCurrentUser: currentUser,
         ),
-        title: ("More"),
-        activeColor: CupertinoColors.white,
-        inactiveColor: Colors.white70,
+      ][currentIndex],
+      bottomNavigationBar: BubbleBottomBar(
+        backgroundColor: Color(0xFF011589),
+        iconSize: 22,
+        opacity: 0,
+        currentIndex: currentIndex,
+        onTap: changePage,
+        items: <BubbleBottomBarItem>[
+          BubbleBottomBarItem(
+            backgroundColor: Colors.white,
+            icon: Icon(Ionicons.ios_football, color: Colors.white70),
+            activeIcon: Icon(Ionicons.ios_football, color: Colors.white),
+            title: Text("Follow"),
+          ),
+          BubbleBottomBarItem(
+            backgroundColor: Colors.white,
+            icon: Icon(LineAwesomeIcons.play, color: Colors.white70),
+            activeIcon: Icon(LineAwesomeIcons.play, color: Colors.white),
+            title: Text("Watch"),
+          ),
+          BubbleBottomBarItem(
+            backgroundColor: Colors.white,
+            icon: Icon(Icons.chat_bubble_outline, color: Colors.white70),
+            activeIcon: Icon(Icons.chat_bubble_outline, color: Colors.white),
+            title: Text("Connect"),
+          ),
+          BubbleBottomBarItem(
+            backgroundColor: Colors.white,
+            icon: Icon(Feather.shopping_bag, color: Colors.white70),
+            activeIcon: Icon(Feather.shopping_bag, color: Colors.white),
+            title: Text("Shop"),
+          ),
+          BubbleBottomBarItem(
+            backgroundColor: Colors.white,
+            icon: Icon(MaterialCommunityIcons.dots_horizontal_circle_outline,
+                color: Colors.white70),
+            activeIcon: Icon(
+                MaterialCommunityIcons.dots_horizontal_circle_outline,
+                color: Colors.white),
+            title: Text("More"),
+          ),
+        ],
+        elevation: 8,
       ),
-    ];
-  }
-
-  Widget homePage() {
-    return PersistentTabView(
-      navBarHeight: 60,
-      controller: _controller,
-      screens: _buildScreens(),
-      items: _navBarsItems(),
-      confineInSafeArea: true,
-      backgroundColor: Color(0xFF011589),
-      resizeToAvoidBottomInset: true,
-      stateManagement: true,
-      hideNavigationBarWhenKeyboardShows: true,
-      popAllScreensOnTapOfSelectedTab: true,
-      itemAnimationProperties: ItemAnimationProperties(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.ease,
-      ),
-      screenTransitionAnimation: ScreenTransitionAnimation(
-        animateTabTransition: false,
-      ),
-      navBarStyle: NavBarStyle.style9,
-      //3,9
     );
   }
 
-  Scaffold signInPage() {
+  Scaffold SignInPage() {
     return Scaffold(
       body: Center(
         child: Column(
@@ -276,10 +244,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     if (_isSignedIn) {
-      return homePage();
+      return HomePage();
     } else {
       return SafeArea(
-        child: signInPage(),
+        child: SignInPage(),
       );
     }
   }
